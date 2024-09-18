@@ -74,7 +74,10 @@ func (app *App) mockHomeUsers(w http.ResponseWriter, r *http.Request) {
 
 // TestRouter tests the router
 func TestRouter(t *testing.T) {
-	app := &App{}
+	app := &App{
+		Logger: log.New(os.Stdout, "INFO: ", log.LstdFlags),
+		DB:     &sql.DB{},
+	}
 
 	// Create a new router and register the handlers
 	r := mux.NewRouter()
@@ -105,7 +108,10 @@ func TestRouter(t *testing.T) {
 
 // * verify login
 func TestVerifyLogin(t *testing.T) {
-	app := &App{}
+	app := &App{
+		Logger: log.New(os.Stdout, "INFO: ", log.LstdFlags),
+		DB:     &sql.DB{},
+	}
 
 	var err error
 	mockDB, mock, err := sqlmock.New()
@@ -115,9 +121,9 @@ func TestVerifyLogin(t *testing.T) {
 	defer mockDB.Close()
 
 	// override db with mockDB
-	originalDB := Db
-	Db = mockDB
-	defer func() { Db = originalDB }()
+	originalDB := app.DB
+	app.DB = mockDB
+	defer func() { app.DB = originalDB }()
 
 	// generate hashed password
 	password := "password123"
@@ -181,7 +187,11 @@ func TestVerifyLogin(t *testing.T) {
 
 // set session
 func TestSetSession(t *testing.T) {
-	app := &App{}
+	app := &App{
+		Logger: log.New(os.Stdout, "INFO: ", log.LstdFlags),
+		DB:     &sql.DB{},
+	}
+
 	userName := "testUser"
 	recorder := httptest.NewRecorder()
 
@@ -219,7 +229,11 @@ func TestSetSession(t *testing.T) {
 
 // logout handler
 func TestLogoutHandler_ClearsSession(t *testing.T) {
-	app := &App{}
+	app := &App{
+		Logger: log.New(os.Stdout, "INFO: ", log.LstdFlags),
+		DB:     &sql.DB{},
+	}
+
 	req, err := http.NewRequest("GET", "/logout", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -252,7 +266,11 @@ func TestLogoutHandler_ClearsSession(t *testing.T) {
 }
 
 func TestLogoutHandler_StatusNoContent(t *testing.T) {
-	app := &App{}
+	app := &App{
+		Logger: log.New(os.Stdout, "INFO: ", log.LstdFlags),
+		DB:     &sql.DB{},
+	}
+
 	req, err := http.NewRequest("GET", "/logout", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -268,7 +286,11 @@ func TestLogoutHandler_StatusNoContent(t *testing.T) {
 }
 
 func TestLogoutHandler_ResponseMessage(t *testing.T) {
-	app := &App{}
+	app := &App{
+		Logger: log.New(os.Stdout, "INFO: ", log.LstdFlags),
+		DB:     &sql.DB{},
+	}
+
 	req, err := http.NewRequest("GET", "/logout", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -286,7 +308,11 @@ func TestLogoutHandler_ResponseMessage(t *testing.T) {
 
 // signup handler
 func TestSignupHandler_ParseFormError(t *testing.T) {
-	app := &App{}
+	app := &App{
+		Logger: log.New(os.Stdout, "INFO: ", log.LstdFlags),
+		DB:     &sql.DB{},
+	}
+
 	req, err := http.NewRequest("POST", "/signup", strings.NewReader("invalid=form"))
 	if err != nil {
 		t.Fatal(err)
@@ -303,7 +329,11 @@ func TestSignupHandler_ParseFormError(t *testing.T) {
 }
 
 func TestSignupHandler_EmptyEmailOrPassword(t *testing.T) {
-	app := &App{}
+	app := &App{
+		Logger: log.New(os.Stdout, "INFO: ", log.LstdFlags),
+		DB:     &sql.DB{},
+	}
+
 	req, err := http.NewRequest("POST", "/signup", strings.NewReader("email=&password="))
 	if err != nil {
 		t.Fatal(err)
