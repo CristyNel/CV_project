@@ -1,9 +1,12 @@
 # CV Management System API
 
-## Overview : This project provides a platform for managing user data and generating custom CV templates.
+## Overview : This project provides a platform for managing user data and generating custom CV templates
 
-![Description](https://venngage-wordpress.s3.amazonaws.com/uploads/2021/11/section-3-resume-banner-1-1.png)
+![Cv_examples](https://venngage-wordpress.s3.amazonaws.com/uploads/2021/11/section-3-resume-banner-1-1.png)
 
+## Screenshots: development
+
+![SCreenshot: 18/09](./bff/static/img/screenshots/Screenshot_18-09-24.png)
 
 ```sh
 CV_project
@@ -43,6 +46,7 @@ CV_project
     Backend  (Go)           : Handles user data management, authentication, and PDF generation.
     Frontend (Python,Flask) : Provides the web interface for user interaction.
     Database (SQL)          : Stores user information.
+```
 
 ## Prerequisites
 
@@ -114,9 +118,9 @@ cd $PathCvProject/bff
 python3 app.py -i 127.0.0.1 -p 8080
 ```
 
-# Github
+## Github
 
-### SSH conection
+## SSH conection
 
 ```sh
 GitSshKey="/PathTo/.ssh/github_rsa"
