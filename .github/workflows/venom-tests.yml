@@ -1,0 +1,50 @@
+#? CV_project/.github/workflows/venom-tests.yml
+---
+name: venom tests
+
+# events workflow
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# jobs workflow
+jobs:
+  venom-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go environment
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.23.1"
+
+      - name: Install dependencies
+        run: |
+          cd api
+          go mod download
+
+      - name: install docker compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      - name: Set up Docker Compose
+        run: |
+          docker-compose -f ./docker-compose.yml up -d
+
+      - name: install venom
+        run: |
+          curl https://github.com/ovh/venom/releases/download/v1.0.1/venom.linux-amd64 -L -o /usr/local/bin/venom
+          chmod +x /usr/local/bin/venom
+
+      - name: run e2e tests
+        run: venom run api/e2etests.yaml
+      - name: stop docker compose
+        run: docker-compose -f ./docker-compose.yml down --volumes
