@@ -15,11 +15,11 @@ CREATE TABLE users (
   postalcode        VARCHAR(128) NOT NULL,
   dateofbirth       DATE NOT NULL,
   nationality       VARCHAR(128) NOT NULL,
-  summary           VARCHAR(256),
-  workexperience    VARCHAR(128),
-  education         VARCHAR(128),
-  skills            VARCHAR(128),
-  languages         VARCHAR(128)
+  summary           VARCHAR(256) DEFAULT '',
+  workexperience    VARCHAR(128) DEFAULT '',
+  education         VARCHAR(128) DEFAULT '',
+  skills            VARCHAR(128) DEFAULT '',
+  languages         VARCHAR(128) DEFAULT ''
 );
 
 CREATE TABLE template (
