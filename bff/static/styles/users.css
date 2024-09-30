@@ -1,47 +1,151 @@
+/* Reset CSS */
 body {
   font-family: Arial, sans-serif;
+  font-size: 18px;
   margin: 0;
   padding: 0;
-  background-color: #0a2941;
-  color: #fff;
+  background-color: #042946;
+  color: #ebd1b5;
+  text-emphasis-color: #f89524;
 }
 
+/* Table styling */
 table {
   width: 80%;
-  margin: 20px auto;
+  margin: 10px auto;
+  font-family: Roboto;
+  font-size: 18px;
   border-collapse: collapse;
-  background-color: #fff;
+  background-color: #0a778a;
+  text-emphasis-color: #43df35;
+  color: blanchedalmond;
 }
 
+/* Table rows and data cells */
 th,
 td {
   padding: 10px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #dae637;
+  text-emphasis-color: #bcd6ba;
+  color: rgb(246, 227, 210);
 }
 
+/* Table header */
 th {
-  background-color: #f2f2f2;
+  background-color: #0a6494;
+  cursor: pointer;
+  text-emphasis-color: #eb9d44;
+}
+
+/* General button styles */
+button,
+.add-button,
+.login-button,
+.signup-button {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 10px 5px;
+  font-size: 14px;
+  font-family: ubuntu;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 5px;
+  border: none;
   cursor: pointer;
 }
 
-button {
-  padding: 5px 10px;
-  background-color: #fff;
-  color: #0a2941;
-  border: 1px solid #0a2941;
-  cursor: pointer;
-  border-radius: 3px;
+/* Specific styles for each button */
+.add-button {
+  background-color: #4caf50; /* Green */
+  color: white;
 }
 
+.login-button {
+  background-color: #008cba; /* Blue */
+  color: white;
+}
+
+.signup-button {
+  background-color: #f44336; /* Red */
+  color: white;
+}
+
+/* Hover effects for buttons */
+button:hover,
+.add-button:hover,
+.login-button:hover,
+.signup-button:hover {
+  opacity: 0.8;
+}
+
+/* Parent container */
+.parent-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+}
+
+/* Table container */
 .table-container {
+  font-family: ubuntu;
+  font-size: 20px;
   margin: 20px auto;
-  max-width: 800px;
+  max-width: 1000px;
   padding: 20px;
-  border: 1px solid #ccc;
+  border: 1px solid #f2f1b0;
   border-radius: 5px;
 }
 
+/* Form container */
+.form-container {
+  font-family: ubuntu;
+  font-size: 20px;
+  padding: 20px;
+  border: 1px solid #f2f1b0;
+  border-radius: 5px;
+  background-color: #0d4916; /* Optional: Add a background color */
+}
+
+/* Aligned form */
+.aligned-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.aligned-form div {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.aligned-form label {
+  width: 150px; /* Fixed width for labels */
+  text-align: right;
+  padding-right: 10px;
+  font-size: 16px; /* Ensure consistent font size */
+}
+
+.aligned-form input {
+  flex: 1;
+  padding: 5px;
+  box-sizing: border-box;
+  font-size: 16px; /* Ensure consistent font size */
+}
+
+.aligned-form input[type="submit"] {
+  width: auto;
+  align-self: center;
+  padding: 10px 20px;
+  font-size: 16px; /* Ensure consistent font size */
+}
+
+/* User table */
 #userTable {
-  border: 1px solid #ccc;
+  border: 1px solid #53c1d4;
+  text-emphasis-color: #fcdc86;
+  color: #fdfb78;
+  font-family: ubuntu;
 }
