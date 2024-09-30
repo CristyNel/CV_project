@@ -9,35 +9,78 @@
 ![SCreenshot: 18/09](./bff/static/img/screenshots/Screenshot_18-09-24.png)
 
 ```sh
-CV_project
-├── api                                 # Go API         - backend
-│   ├── CV_project                      # Executable file ...  (cd $PathCvProject/api && go build -o CV_project main.go)
-│   ├── example.pdf                     # Sample PDF
-│   ├── go.mod                          # Go modules     - dependency management
-│   ├── go.sum                          # Checksum       - dependencies
-│   └── main.go                         # Main entry point
-├── bff                                 # Flask-based    - frontend
-│   ├── app.py                          # Main Flask application file
-│   ├── css                             # CSS files      - styling
-│   │   └── users.css                   # Custom CSS     - user-related pages
-│   ├── templates                       # HTML templates - frontend
-│   │   ├── edit_form.html              # HTML     form  - editing user data
-│   │   ├── greet.html                  # Greeting page
-│   │   ├── home.html                   # Home     page
-│   │   ├── loginform.html              # Login    form
-│   │   ├── populate_template.html      # Template       - populating CVs
-│   │   ├── post_form.html              # Form           - posting new content
-│   │   ├── signupform.html             # Signup form
-│   │   ├── template1.html              # CV template 1
-│   │   ├── template2.html              # CV template 2
-│   │   └── template3.html              # CV template 3
-│   └── users.js                        # JavaScript     - user-related functionality
-├── .gitignore                          # Git ignore     - version control
-├── sql                                 # SQL files      - database schema
-│   ├── schemadump.sql                  # Schema creation and sample data
-│   └── schema.sql                      # Schema creation only
-└── src                                 # Source code
-    └── __init__.py                     # Initialization and configuration
+/CV_project
+├── api                                 # go api         - backend
+│   ├── cmd                             # command directory
+│   │   ├── main.go                     # main entry point
+│   │   └── main_test.go                # tests for main
+│   ├── e2etests.yml                    # end-to-end tests configuration
+│   ├── go.mod                          # go modules     - dependency management
+│   ├── go.sum                          # checksum       - dependencies
+│   ├── handlers                        # handlers for different routes
+│   │   ├── home.go                     # home handler
+│   │   ├── templates.go                # templates handler
+│   │   └── users.go                    # users handler
+│   ├── internal                        # internal packages
+│   │   ├── app                         # application logic
+│   │   │   └── app.go                  # application entry point
+│   │   ├── database                    # database logic
+│   │   │   └── db.go                   # database connection
+│   │   └── utils                       # utility functions
+│   │       └── utils.go                # utility functions implementation
+│   ├── mock                            # mock handlers for testing
+│   │   └── mock_handlers.go            # mock handlers
+│   ├── models                          # data models
+│   │   └── user.go                     # user model
+│   ├── routes                          # route definitions
+│   │   └── router.go                   # router setup
+│   └── tests                           # tests
+│       ├── coverage.html               # test coverage report
+│       ├── coverage.out                # test coverage output
+│       ├── home_test.go                # tests for home handler
+│       ├── mock_handlers_test.go       # tests for mock handlers
+│       ├── users_test.go               # tests for users handler
+│       └── venom.log                   # venom test logs
+├── bff                                 # flask-based    - frontend
+│   ├── app                             # flask application
+│   │   ├── app.py                      # main flask application file
+│   │   └── __init__.py                 # initialization file
+│   ├── requirements.txt                # python dependencies
+│   ├── static                          # static files
+│   │   ├── img                         # images
+│   │   │   └── screenshots             # screenshots
+│   │   ├── js                          # javascript files
+│   │   │   └── users.js                # custom javascript - user-related functionality
+│   │   └── styles                      # css files
+│   │       └── users.css               # custom css - user-related pages
+│   └── templates                       # html templates
+│       ├── forms                       # form templates
+│       │   ├── edit_form.html          # html form  - editing user data
+│       │   ├── loginform.html          # login form
+│       │   ├── post_form.html          # form       - posting new content
+│       │   └── signupform.html         # signup form
+│       └── view                        # view templates
+│           ├── favicon.ico             # favicon
+│           ├── greet.html              # greeting page
+│           ├── home.html               # home page
+│           ├── populate_template.html  # template    - populating cvs
+│           ├── template1.html          # cv template 1
+│           ├── template2.html          # cv template 2
+│           └── template3.html          # cv template 3
+├── docker-compose.yml                  # docker compose configuration
+├── Dockerfile.api                      # dockerfile for the api
+├── Dockerfile.bff                      # dockerfile for the bff
+├── .env                                # environment variables
+├── .github                             # github workflows
+│   └── workflows                       # github actions workflows
+│       ├── unit-tests.yml              # unit tests workflow
+│       └── venom-tests.yml             # venom tests workflow
+├── .gitignore                          # git ignore  - version control
+├── Makefile                            # makefile for build automation
+├── README.md                           # project documentation
+└── sql                                 # sql files   - database schema
+    ├── schemadump.sql                  # schema creation and sample data
+    └── schema.sql                      # schema creation only
 ```
 
 ## Components

@@ -115,31 +115,35 @@ button:hover,
   gap: 10px;
 }
 
+/* Flexbox styles */
 .aligned-form div {
   display: flex;
   justify-content: flex-start;
   align-items: center;
 }
 
+/* Label and input styles */
 .aligned-form label {
-  width: 150px; /* Fixed width for labels */
+  width: 150px;
   text-align: right;
   padding-right: 10px;
-  font-size: 16px; /* Ensure consistent font size */
+  font-size: 16px;
 }
 
+/* Input styles */
 .aligned-form input {
   flex: 1;
   padding: 5px;
   box-sizing: border-box;
-  font-size: 16px; /* Ensure consistent font size */
+  font-size: 16px;
 }
 
+/* Submit button styles */
 .aligned-form input[type="submit"] {
   width: auto;
   align-self: center;
   padding: 10px 20px;
-  font-size: 16px; /* Ensure consistent font size */
+  font-size: 16px;
 }
 
 /* User table */
