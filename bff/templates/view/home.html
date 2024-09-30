@@ -1,46 +1,50 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Users</title>
-    <link rel="stylesheet" href="../static/styles/users.css" />
-  </head>
-  <body>
-    <div class="table-container">
-      <input type="text" id="searchInput" placeholder="Search for users.." />
 
-      <a href="/postform" class="add-button">ADD</a>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Users</title>
+  <link rel="stylesheet" href="../static/styles/users.css" />
+</head>
 
-      <table id="userTable">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Firstname</th>
-            <th>Lastname</th>
-            <th>Email</th>
-          </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.ID }}</td>
-                <td>{{ user.Firstname }}</td>
-                <td>{{ user.Lastname }}</td>
-                <td>{{ user.Email }}</td>
-                <td>
-                    <button onclick="updateUser('{{ user.ID }}')">UPDATE</button>
-                    <button onclick="deleteUser('{{ user.ID }}')">DELETE</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-      </table>
+<body>
+  <div class="parent-container">
+  <div class="table-container">
+    <input type="text" id="searchInput" placeholder="Search for users.." />
+
+    <a href="/postform" class="add-button">ADD</a>
+
+    <table id="userTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Firstname</th>
+          <th>Lastname</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.firstname }}</td>
+          <td>{{ user.lastname }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <button onclick="updateUser('{{ user.id }}')">UPDATE</button>
+            <button onclick="deleteUser('{{ user.id }}')">DELETE</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
     <a href="/login" class="login-button">LOGIN</a>
-    <a href="/signup" class="signup-button">SIGNUP</a> 
-
-</div>
-<script src="/static/js/users.js"></script>
+    <a href="/signup" class="signup-button">SIGNUP</a>
+  </div>
+  </div>
+  <script src="/static/js/users.js"></script>
 </body>
+
 </html>

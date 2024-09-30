@@ -1,28 +1,31 @@
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <style>
-      body {
-        background-color: powderblue;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>{{data.Firstname}} {{data.Lastname}}</h1>
 
-    <p>Job Title: {{data.Jobtitle}}</p>
-    <p>Email: {{data.Email}}</p>
-    <p>Phone: {{data.Phone}}</p>
-    <p>Address: {{data.Address}}</p>
-    <p>City: {{data.City}}</p>
-    <p>Country: {{data.Country}}</p>
-    <p>Postalcode: {{data.Postalcode}}</p>
-    <p>Dateofbirth: {{data.Dateofbirth}}</p>
-    <p>Nationality: {{data.Nationality}}</p>
-    <p>Summary: {{data.Summary}}</p>
-    <p>Workexperience: {{data.Workexperience}}</p>
-    <p>Education: {{data.Education}}</p>
-    <p>Skills: {{data.Skills}}</p>
-    <p>Languages: {{data.Languages}}</p>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="../static/styles/users.css" />
+</head>
+
+<body>
+  <div class="parent-container">
+    <div class="content-container">
+      <h1>{{data.Firstname}} {{data.Lastname}}</h1>
+
+      <p>Job Title: {{data.Jobtitle}}</p>
+      <p>Email: {{data.Email}}</p>
+      <p>Phone: {{data.Phone}}</p>
+      <p>Address: {{data.Address}}</p>
+      <p>City: {{data.City}}</p>
+      <p>Country: {{data.Country}}</p>
+      <p>Postalcode: {{data.Postalcode}}</p>
+      <p>Dateofbirth: {{data.Dateofbirth}}</p>
+      <p>Nationality: {{data.Nationality}}</p>
+      <p>Summary: {{data.Summary}}</p>
+      <p>Workexperience: {{data.Workexperience}}</p>
+      <p>Education: {{data.Education}}</p>
+      <p>Skills: {{data.Skills}}</p>
+      <p>Languages: {{data.Languages}}</p>
+    </div>
+  </div>
+</body>
+
 </html>
