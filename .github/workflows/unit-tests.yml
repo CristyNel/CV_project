@@ -2,7 +2,6 @@
 ---
 name: unit tests
 
-# events workflow
 on:
   push:
     paths:
@@ -18,7 +17,6 @@ on:
       - main
   workflow_dispatch: {}
 
-# jobs workflow
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
@@ -28,21 +26,26 @@ jobs:
 
       - name: set up go
         uses: actions/setup-go@v5
-
         with:
-          go-version: 1.23.0
+          go-version: 1.23.1
 
       - name: verify go installation
-        run: go version
+        run: echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * 🐹 Go version' && go version
 
       - name: install dependencies
-        run: go mod tidy
-
         working-directory: ./api
+        run: echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * 🧰 Install dependencies' && go mod tidy
+
+      - name: install wkhtmltopdf
+        run: |
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository -y ppa:apt-fast/stable
+          sudo apt-get install -y wkhtmltopdf
+
       - name: run unit tests
-        run: go test -v main.go main_test.go #./...
-
         working-directory: ./api
+        run: echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * ⭐ Run unit tests' && go test -v ./...
+
       - name: cache go modules
         uses: actions/cache@v4
         with:
