@@ -1,5 +1,4 @@
-// CV_project/api/handlers/home.go
-
+// * CV_project/api/handlers/home.go
 package handlers
 
 import (

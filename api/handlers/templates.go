@@ -1,4 +1,4 @@
-// handlers/templates.go
+// * handlers/templates.go
 package handlers
 
 import (
@@ -87,12 +87,13 @@ func GenerateTemplate(app *app.App, w http.ResponseWriter, r *http.Request) {
 	htmlString = strings.ReplaceAll(htmlString, "{{Languages}}", user.Languages)
 
 	// Write
-	err = os.WriteFile("../bff/templates/populate_template.html", []byte(htmlString), 0644)
+	err = os.WriteFile("./bff/templates/view/populate_template.html", []byte(htmlString), 0644)
 	if err != nil {
 		panic(err)
 	}
+
 	// Read
-	populateHtml, err := os.ReadFile("../bff/templates/populate_template.html")
+	populateHtml, err := os.ReadFile("./bff/templates/view/populate_template.html")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -114,5 +115,5 @@ func GenerateTemplate(app *app.App, w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	// Respond with template and user IDs
-	fmt.Fprintf(w, "%s, %s", template_id, user_id)
+	fmt.Fprintf(w, "%s, %s", template_id[0], user_id[0])
 }

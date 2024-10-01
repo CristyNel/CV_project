@@ -1,8 +1,8 @@
-// CV_project/api/models/user.go
+// * CV_project/api/models/user.go
 
 package models
 
-// User represents a user in the database
+// Database rappresentation 
 type User struct {
 	ID             int    `json:"id"`
 	Jobtitle       string `json:"jobtitle"`

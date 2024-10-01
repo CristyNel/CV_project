@@ -1,5 +1,4 @@
-// CV_project/api/internal/utils/utils.go
-
+// * CV_project/api/internal/utils/utils.go
 package utils
 
 import (

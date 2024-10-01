@@ -1,5 +1,4 @@
-// CV_project/api/internal/database/db.go
-
+// * CV_project/api/internal/database/db.go
 package database
 
 import (
@@ -12,7 +11,7 @@ import (
 )
 
 // * connection to the database
-func ConnectToDatabases() (*sql.DB, error) {
+func ConnectToDatabases(sqlOpen func(driverName, dataSourceName string) (*sql.DB, error)) (*sql.DB, error) {
 	getEnv := func(key, fallback string) string {
 		if value, exists := os.LookupEnv(key); exists {
 			return value
@@ -42,7 +41,7 @@ func ConnectToDatabases() (*sql.DB, error) {
 	fmt.Printf("	DSN:		  \033[1;36;5m ➮ %s\033[0m\n", maskedDSN)
 
 	fmt.Println("\n * Opening database connection...")
-	db, err := sql.Open("mysql", dsn)
+	db, err := sqlOpen("mysql", dsn)
 	if err != nil {
 		fmt.Println("Error connecting:", err)
 		return nil, err

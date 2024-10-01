@@ -1,5 +1,4 @@
-// CV_project/api/routes/router.go
-
+// * CV_project/api/routes/router.go
 package routes
 
 import (

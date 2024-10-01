@@ -1,5 +1,4 @@
-// // CV_project/api/handlers/users.go
-
+// * CV_project/api/handlers/users.go
 package handlers
 
 import (
@@ -204,67 +203,67 @@ func UpdateUser(app *app.App, w http.ResponseWriter, r *http.Request) {
 
 // DeleteUser handles DELETE requests to delete a user by ID
 func DeleteUser(app *app.App, w http.ResponseWriter, r *http.Request) {
-    app.Logger.Println("Received request for /user/{id}, method: DELETE")
+	app.Logger.Println("Received request for /user/{id}, method: DELETE")
 
-    if r.Method != http.MethodDelete {
-        http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-        return
-    }
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-    vars := mux.Vars(r)
-    userID := vars["id"]
-    if userID == "" {
-        http.Error(w, "User ID is required", http.StatusBadRequest)
-        return
-    }
+	vars := mux.Vars(r)
+	userID := vars["id"]
+	if userID == "" {
+		http.Error(w, "User ID is required", http.StatusBadRequest)
+		return
+	}
 
-    id, err := strconv.ParseInt(userID, 10, 64)
-    if err != nil || id < 1 {
-        http.Error(w, "ID should be a positive integer", http.StatusBadRequest)
-        return
-    }
+	id, err := strconv.ParseInt(userID, 10, 64)
+	if err != nil || id < 1 {
+		http.Error(w, "ID should be a positive integer", http.StatusBadRequest)
+		return
+	}
 
-    // Check if user exists
-    var exists bool
-    err = app.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE id = ?)", id).Scan(&exists)
-    if err != nil {
-        app.Logger.Println("Error checking user existence: ", err)
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-        return
-    }
-    if !exists {
-        http.Error(w, fmt.Sprintf("User with ID %d not found", id), http.StatusNotFound)
-        return
-    }
+	// Check if user exists
+	var exists bool
+	err = app.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE id = ?)", id).Scan(&exists)
+	if err != nil {
+		app.Logger.Println("Error checking user existence: ", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if !exists {
+		http.Error(w, fmt.Sprintf("User with ID %d not found", id), http.StatusNotFound)
+		return
+	}
 
-    stmt, err := app.DB.Prepare("DELETE FROM users WHERE id = ?")
-    if err != nil {
-        app.Logger.Println("Error preparing delete statement: ", err)
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-        return
-    }
-    defer stmt.Close()
+	stmt, err := app.DB.Prepare("DELETE FROM users WHERE id = ?")
+	if err != nil {
+		app.Logger.Println("Error preparing delete statement: ", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	defer stmt.Close()
 
-    result, err := stmt.Exec(id)
-    if err != nil {
-        app.Logger.Println("Error executing delete statement: ", err)
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-        return
-    }
+	result, err := stmt.Exec(id)
+	if err != nil {
+		app.Logger.Println("Error executing delete statement: ", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
-    rowsAffected, err := result.RowsAffected()
-    if err != nil {
-        app.Logger.Println("Error fetching rows affected: ", err)
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-        return
-    }
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		app.Logger.Println("Error fetching rows affected: ", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
-    if rowsAffected == 0 {
-        http.Error(w, fmt.Sprintf("User with ID %d not found", id), http.StatusNotFound)
-        return
-    }
+	if rowsAffected == 0 {
+		http.Error(w, fmt.Sprintf("User with ID %d not found", id), http.StatusNotFound)
+		return
+	}
 
-    w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // AddUser handles POST requests to add a new user
