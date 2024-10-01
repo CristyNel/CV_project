@@ -1,4 +1,4 @@
-# CV_project/bff/app/app.py
+# * CV_project/bff/app/app.py
 
 """
 Frontend with flask to interact with the API
