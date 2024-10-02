@@ -97,6 +97,32 @@ func SignupHandler(app *app.App, w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("User signup successfully"))
 }
 
+// ShowUser handles GET requests to fetch one user by ID
+func ShowUser(app *app.App, w http.ResponseWriter, r *http.Request) {
+	app.Logger.Println("Received request for /user/{id}, method: GET")
+
+	// Get the user ID from the URL
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	// Fetch the user from the database
+	var user models.User
+	err := app.DB.QueryRow("SELECT id, jobtitle, firstname, lastname, email, phone, address, city, country, postalcode, dateofbirth, nationality, summary, workexperience, education, skills, languages FROM users WHERE id = ?", id).Scan(
+		&user.ID, &user.Jobtitle, &user.Firstname, &user.Lastname, &user.Email, &user.Phone, &user.Address, &user.City, &user.Country, &user.Postalcode, &user.Dateofbirth, &user.Nationality, &user.Summary, &user.Workexperience, &user.Education, &user.Skills, &user.Languages)
+	if err != nil {
+		app.Logger.Println("Error querying database: ", err)
+		http.Error(w, fmt.Sprintf("Error querying database: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Return the user as JSON
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(user); err != nil {
+		http.Error(w, "Failed to encode user", http.StatusInternalServerError)
+		return
+	}
+}
+
 // ShowUsers handles GET requests to fetch all users
 func ShowUsers(app *app.App, w http.ResponseWriter, r *http.Request) {
 	app.Logger.Println("Received request for /users, method: GET")

@@ -50,7 +50,7 @@ func TestGenerateTemplate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create directory: %v", err)
 	}
-	defer os.RemoveAll(populateTemplateDir) // Ensure the directory and its contents are removed
+	defer os.RemoveAll(populateTemplateDir)
 
 	// Mock PDF generation
 	pdfg, err := wkhtml.NewPDFGenerator()

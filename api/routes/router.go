@@ -31,6 +31,10 @@ func InitializeRouter(app *app.App) *mux.Router {
 	}).Methods("POST")
 
 	r.HandleFunc("/user/{id}", func(w http.ResponseWriter, r *http.Request) {
+        handlers.ShowUser(app, w, r)  // <-- Added this route
+    }).Methods("GET")
+
+	r.HandleFunc("/user/{id}", func(w http.ResponseWriter, r *http.Request) {
 		handlers.UpdateUser(app, w, r)
 	}).Methods("PUT")
 
