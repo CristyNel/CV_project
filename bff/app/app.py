@@ -65,7 +65,7 @@ def home():
 def get_users():
     """Route to fetch and display all users."""
     url = f"http://{IP}:{PORT}/users"
-    app.logger.info("Fetching users from: %s", url)
+    app.logger.info("\033[1;96;1m * * * 👤 Fetching users from: %s\033[0m", url)
     try:
         response = requests.get(url=url, timeout=12)
         response.raise_for_status()
@@ -240,10 +240,11 @@ def generate_template3():
 def loginuser():
     """route to login a user"""
     if request.method == "GET":
+        app.logger.info("\033[1;96;1m * * * 🔓 Login, GET to %s\033[0m", url)
         return render_template("forms/loginform.html")
     elif request.method == "POST":
         url = f"http://{IP}:{PORT}/login"
-        app.logger.info("\033[1;96;1m * * * 🔓 Login, GET - POST to %s\033[0m", url)
+        app.logger.info("\033[1;96;1m * * * 🔓 Login, POST to %s\033[0m", url)
         try:
             r = requests.post(
                 url, data=request.form, headers=request.headers, timeout=10
@@ -283,10 +284,11 @@ def logoutuser():
 def signupuser():
     """route to sign up a user"""
     if request.method == "GET":
+        app.logger.info("\033[1;96;1m * * * 🔐 Signup, GET to %s\033[0m", url)
         return render_template("forms/signupform.html")
     if request.method == "POST":
         url = f"http://{IP}:{PORT}/signup"
-        app.logger.info("\033[1;96;1m * * * 🔐 Signup, GET - POST to %s\033[0m", url)
+        app.logger.info("\033[1;96;1m * * * 🔐 Signup, POST to %s\033[0m", url)
         try:
             r = requests.post(
                 url, data=request.form, headers=request.headers, timeout=10
