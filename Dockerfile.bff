@@ -1,6 +1,9 @@
+# curl -s https://registry.hub.docker.com/v2/repositories/library/python/tags | jq -r '.results[] | .name + " - " + (.last_updated | split("T")[0])'
 FROM python:3.11-slim
 
 WORKDIR /bff/
+
+COPY .env ./app/.env
 
 COPY bff/ .
 
