@@ -1,26 +1,25 @@
-# ./docker-compose.yml
 services:
   cv_db-service:
-    image: mysql:${MYSQL_TAG:-8.0.39}
-    container_name: ${MYSQL_CONTAINER}
+    image: mysql:9.0
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_USER: ${MYSQL_USER}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_CONTAINER: ${MYSQL_CONTAINER}
+    container_name: ${MYSQL_CONTAINER}
     networks:
-      - ${CV_NETWORK}
+      - cv-network
     ports:
-      - ${DB_PORT:-3306}:3306
+      - 3307:3306
     volumes:
       - ./sql/schemadump.sql:/docker-entrypoint-initdb.d/dump.sql
-      # - mysql-data:/var/lib/mysql
     healthcheck:
       test: [CMD, mysqladmin, ping, -h, localhost]
       interval: 12s
       timeout: 8s
       retries: 5
-      start_period: 15s
+      start_period: 5s
     restart: always
     command: >
       mysqld; sh -c "
@@ -31,35 +30,42 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.api
-    image: ${API_IMG}:${API_TAG}
-    container_name: ${API_CONTAINER}
     environment:
-      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      API_IMG: ${API_IMG}
+      API_TAG: ${API_TAG}
+      API_CONTAINER: ${API_CONTAINER}
+      MYSQL_HOST: ${MYSQL_HOST}
+    image: ${API_IMG}:${API_TAG}
+    container_name: ${API_CONTAINER}
     ports:
-      - ${API_PORT:-8080}:8080
+      - 8080:8080
     depends_on:
       cv_db-service:
         condition: service_healthy
     networks:
-      - ${CV_NETWORK}
+      - cv-network
     restart: always
 
   cv_bff-service:
+    environment:
+      BFF_IMG: ${BFF_IMG}
+      BFF_TAG: ${BFF_TAG}
+      BFF_CONTAINER: ${BFF_CONTAINER}
+      API_IP: ${API_IP}
+      API_PORT: ${API_PORT}
     build:
       context: .
       dockerfile: Dockerfile.bff
     image: ${BFF_IMG}:${BFF_TAG}
     container_name: ${BFF_CONTAINER}
-    environment:
-      API_HOST: ${API_HOST}
-      API_PORT: ${API_PORT}
     ports:
-      - ${BFF_PORT:-5000}:5000
+      - "5000:5000"
     networks:
-      - ${CV_NETWORK}
+      - cv-network
     restart: always
     depends_on:
       cv_db-service:
@@ -67,10 +73,5 @@ services:
 
 networks:
   cv-network:
-    name: ${CV_NETWORK}
+    name: cv-network
     driver: bridge
-    # ipam:
-    #   config:
-    #     - subnet: 172.18.0.0/16
-    #       gateway: 172.18.0.1
-# volumes:
