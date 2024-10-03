@@ -20,31 +20,58 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Go environment
-        uses: actions/setup-go@v4
+      - name: set up go
+        uses: actions/setup-go@v5
         with:
-          go-version: "1.23.1"
+          go-version: 1.23.1
+
+      - name: Verify go installation
+        run: |
+          echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * 🐹 Go version'
+          go version
 
       - name: Install dependencies
+        working-directory: ./api
         run: |
-          cd api
-          go mod download
+          echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * 🧰 Install dependencies'
+          go mod tidy
 
-      - name: install docker compose
+      - name: Install docker compose
         run: |
+          echo -e '\033[94;1m * * * 🐳 Installing docker compose'
           sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
       - name: Set up Docker Compose
         run: |
+          echo -e '\033[94;1m * * * 🛠️  Set up Docker'
           docker-compose -f ./docker-compose.yml up -d
-
-      - name: install venom
+        env:
+          MYSQL_CONTAINER: ${{ secrets.MYSQL_CONTAINER }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          API_IMG: ${{ secrets.API_IMG }}
+          API_TAG: ${{ secrets.API_TAG }}
+          API_CONTAINER: ${{ secrets.API_CONTAINER }}
+          BFF_IMG: ${{ secrets.BFF_IMG }}
+          BFF_TAG: ${{ secrets.BFF_TAG }}
+          BFF_CONTAINER: ${{ secrets.BFF_CONTAINER }}          
+          
+      - name: Install venom
         run: |
+          echo -e '\033[94;1m * * * 🐍 Installing venom'
           curl https://github.com/ovh/venom/releases/download/v1.0.1/venom.linux-amd64 -L -o /usr/local/bin/venom
           chmod +x /usr/local/bin/venom
 
-      - name: run e2e tests
-        run: venom run api/e2etests.yaml
-      - name: stop docker compose
-        run: docker-compose -f ./docker-compose.yml down --volumes
+      - name: Run e2e tests
+        working-directory: ./api/tests
+        run: |
+          echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * ⭐ Run e2e tests'
+          venom run e2etests.yml
+
+      - name: Stop docker compose
+        run: |
+          echo -e '\033[94;1m * * * ❌ Stop docker compose'
+          docker-compose -f ./docker-compose.yml down --volumes

@@ -30,21 +30,28 @@ jobs:
           go-version: 1.23.1
 
       - name: verify go installation
-        run: echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * 🐹 Go version' && go version
+        run: |
+          echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * 🐹 Go version'
+          go version
 
       - name: install dependencies
         working-directory: ./api
-        run: echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * 🧰 Install dependencies' && go mod tidy
+        run: |
+          echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * 🧰 Install dependencies'
+          go mod tidy
 
       - name: install wkhtmltopdf
         run: |
-          sudo apt-get install -y software-properties-common
-          sudo add-apt-repository -y ppa:apt-fast/stable
-          sudo apt-get install -y wkhtmltopdf
+          echo -e '\033[94;1m * * * 🎨 Installing wkhtmltopdf'
+          sudo apt-get install -qq -y software-properties-common > /dev/null
+          sudo add-apt-repository -y ppa:apt-fast/stable > /dev/null 
+          sudo apt-get install -qq -y wkhtmltopdf > /dev/null
 
       - name: run unit tests
         working-directory: ./api
-        run: echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * ⭐ Run unit tests' && go test -v ./...
+        run: |
+          echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * ⭐ Run unit tests'
+          go test -v ./...
 
       - name: cache go modules
         uses: actions/cache@v4

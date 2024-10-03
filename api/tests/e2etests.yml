@@ -1,0 +1,36 @@
+# api/tests/e2etests.yml
+name: API E2E Tests
+
+vars:
+  sql.url: ""
+  api.url: ""
+
+testcases:
+  - name: Fetch DB Container IP
+    steps:
+      - type: exec
+        script: docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' cv_db-container
+        assertions:
+          - result.code ShouldEqual 0
+        extract:
+          sql.url: result.systemout
+
+  - name: Fetch API Container IP
+    steps:
+      - type: exec
+        script: docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' cv_api-container
+        assertions:
+          - result.code ShouldEqual 0
+        extract:
+          api.url: result.systemout
+
+  - name: DeleteUser
+    steps:
+      - type: http
+        method: DELETE
+        url: "http://{{.api.url}}:8080/user/6"
+        headers:
+          Content-Type: application/json
+        assertions:
+          - result.statuscode ShouldEqual 204
+
