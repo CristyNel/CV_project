@@ -2,6 +2,7 @@
 package utils
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -30,15 +31,38 @@ func GetEnv(app *app.App, key, fallback string) string {
 	return fallback
 }
 
+// VerifyLogin verifies the username and password against the stored hash in the database.
 func VerifyLogin(app *app.App, username, password string) bool {
-	var hashedPassword string
-	err := app.DB.QueryRow("SELECT password FROM userlogin WHERE username = ?", username).Scan(&hashedPassword)
-	if err != nil {
+	if app.DB == nil {
+		app.Logger.Println("Database connection is nil")
 		return false
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-	return err == nil
+	var storedHash string
+
+	// Query the database to get the stored hash for the given username
+	query := "SELECT password FROM user_session WHERE username = ?"
+	err := app.DB.QueryRow(query, username).Scan(&storedHash)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			app.Logger.Println("No user found with username:", username)
+			return false
+		}
+		app.Logger.Println("Error querying database:", err)
+		return false
+	}
+
+	// Log the username and the stored hash
+	app.Logger.Printf("Username found: %s", username) //, Password in DB, storedHash
+
+	// Compare the provided password with the stored hash
+	err = bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(password))
+	if err != nil {
+		app.Logger.Println("Password does not match for user:", username)
+		return false
+	}
+
+	return true
 }
 
 func SetSession(app *app.App, userName string, w http.ResponseWriter) {
@@ -46,14 +70,19 @@ func SetSession(app *app.App, userName string, w http.ResponseWriter) {
 		"name": userName,
 	}
 
-	if encoded, err := CookieHandler.Encode("session", value); err == nil {
-		cookie := &http.Cookie{
-			Name:  "session",
-			Value: encoded,
-			Path:  "/",
-		}
-		http.SetCookie(w, cookie)
+	encoded, err := CookieHandler.Encode("session", value)
+	if err != nil {
+		app.Logger.Println("Error encoding cookie:", err) // Log encoding errors
+		return
 	}
+
+	cookie := &http.Cookie{
+		Name:  "session",
+		Value: encoded,
+		Path:  "/",
+	}
+	http.SetCookie(w, cookie)
+	app.Logger.Println("Session set for user:", userName) // Log session creation
 }
 
 // ErrorResponse sends an error response with a given status code and message

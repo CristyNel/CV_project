@@ -10,6 +10,8 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/damarisnicolae/CV_project/api/internal/app"
+	"github.com/damarisnicolae/CV_project/api/mock"
+	"github.com/gorilla/securecookie"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -33,30 +35,54 @@ func TestVerifyLogin(t *testing.T) {
 
 	app := &app.App{DB: db}
 
+	// Mock valid user
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
 	mock.ExpectQuery("SELECT password FROM userlogin WHERE username = ?").
 		WithArgs("user").
 		WillReturnRows(sqlmock.NewRows([]string{"password"}).AddRow(string(hashedPassword)))
 
+	// Test successful login
 	assert.True(t, VerifyLogin(app, "user", "password"))
+
+	// Test incorrect password
 	assert.False(t, VerifyLogin(app, "user", "wrongpassword"))
 
+	// Mock non-existent user
 	mock.ExpectQuery("SELECT password FROM userlogin WHERE username = ?").
 		WithArgs("nonexistent").
 		WillReturnError(sql.ErrNoRows)
 
+	// Test non-existent user
 	assert.False(t, VerifyLogin(app, "nonexistent", "password"))
+
+	// Ensure all expectations are met
+	err = mock.ExpectationsWereMet()
+	assert.NoError(t, err)
 }
 
 // TestSetSession tests the SetSession function
 func TestSetSession(t *testing.T) {
-	app := &app.App{}
-	w := httptest.NewRecorder()
-	SetSession(app, "testuser", w)
+    // Initialize CookieHandler
+    CookieHandler = securecookie.New(
+        securecookie.GenerateRandomKey(64),
+        securecookie.GenerateRandomKey(32),
+    )
 
-	cookie := w.Result().Cookies()[0]
-	assert.Equal(t, "session", cookie.Name)
-	assert.NotEmpty(t, cookie.Value)
+    // Create a mock response recorder
+    w := httptest.NewRecorder()
+
+    // Create a mock app with the mock logger
+    mockApp := &app.App{
+        Logger: mock.NewMockLogger(),
+    }
+
+    // Call SetSession
+    SetSession(mockApp, "testuser", w)
+
+    // Check if the cookie is correctly set
+    cookie := w.Result().Cookies()[0]
+    assert.Equal(t, "session", cookie.Name)
+    assert.NotEmpty(t, cookie.Value)
 }
 
 // TestErrorResponse tests the ErrorResponse function

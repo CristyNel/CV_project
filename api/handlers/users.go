@@ -16,35 +16,40 @@ import (
 )
 
 func LoginHandler(app *app.App, w http.ResponseWriter, r *http.Request) {
-	app.Logger.Println("Received request for /login")
+    app.Logger.Println("Received request for /login")
 
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
+    if err := r.ParseForm(); err != nil {
+        app.Logger.Println("Error parsing form:", err)
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
 
-	username := strings.TrimSpace(r.Form.Get("username"))
-	password := r.Form.Get("password")
+    username := strings.TrimSpace(r.Form.Get("username"))
+    password := r.Form.Get("password")
 
-	if username == "" || password == "" {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
+    app.Logger.Println("Parsed form data - Username:", username) // , "Password:", password
 
-	if utils.VerifyLogin(app, username, password) {
-		response := struct {
-			Username string `json:"username"`
-		}{
-			Username: username,
-		}
+    if username == "" || password == "" {
+        app.Logger.Println("Missing username or password")
+        http.Error(w, "Bad Request", http.StatusBadRequest)
+        return
+    }
 
-		w.Header().Set("Content-Type", "application/json")
-		utils.SetSession(app, username, w)
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
-	} else {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-	}
+    if utils.VerifyLogin(app, username, password) {
+        response := struct {
+            Username string `json:"username"`
+        }{
+            Username: username,
+        }
+
+        w.Header().Set("Content-Type", "application/json")
+        utils.SetSession(app, username, w)
+        w.WriteHeader(http.StatusOK)
+        json.NewEncoder(w).Encode(response)
+    } else {
+        app.Logger.Println("Unauthorized access attempt by:", username)
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+    }
 }
 
 func LogoutHandler(app *app.App, w http.ResponseWriter, r *http.Request) {
