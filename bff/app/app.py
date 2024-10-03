@@ -30,16 +30,16 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("flask.app")
 logger.propagate = False  # Disable log propagation
 
-app.logger.info("\033[1;96;1m * * * 🔗 project_root    = %s\033[0m", project_root)
-app.logger.info("\033[1;96;1m * * * 🔗 template_folder = %s\033[0m", template_folder)
-app.logger.info("\033[1;96;1m * * * 🔗 static_folder   = %s\033[0m", static_folder)
+app.logger.info("\033[1;96;1m * * * 🅿️ project_root    = %s\033[0m", project_root)
+app.logger.info("\033[1;96;1m * * * 🅿️ template_folder = %s\033[0m", template_folder)
+app.logger.info("\033[1;96;1m * * * 🅿️ static_folder   = %s\033[0m", static_folder)
 
 
 @app.route("/", methods=["GET"])
 def home():
     """Home route to fetch and display users."""
     url = f"http://{IP}:{PORT}/users"
-    app.logger.info("\033[1;96;1m * * * 👤 Fetching users from: %s\033[0m", url)
+    app.logger.info("\033[1;96;1m * * * 👥 Fetching users from: %s\033[0m", url)
     try:
         response = requests.get(url=url, timeout=12)
         response.raise_for_status()
@@ -65,7 +65,7 @@ def home():
 def get_users():
     """Route to fetch and display all users."""
     url = f"http://{IP}:{PORT}/users"
-    app.logger.info("\033[1;96;1m * * * 👤 Fetching users from: %s\033[0m", url)
+    app.logger.info("\033[1;96;1m * * * 👥 Fetching users from: %s\033[0m", url)
     try:
         response = requests.get(url=url, timeout=12)
         response.raise_for_status()
@@ -238,30 +238,40 @@ def generate_template3():
 
 @app.route("/login", methods=["GET", "POST"])
 def loginuser():
-    """route to login a user"""
+    """Route to login a user"""
+    url = f"http://{IP}:{PORT}/login"
     if request.method == "GET":
         app.logger.info("\033[1;96;1m * * * 🔓 Login, GET to %s\033[0m", url)
         return render_template("forms/loginform.html")
-    elif request.method == "POST":
-        url = f"http://{IP}:{PORT}/login"
+
+    if request.method == "POST":
         app.logger.info("\033[1;96;1m * * * 🔓 Login, POST to %s\033[0m", url)
         try:
+            # ? app.logger.info("\033[1;96;1m * * * 🔏 Form data: %s\033[0m ", request.form)
             r = requests.post(
-                url, data=request.form, headers=request.headers, timeout=10
+                url,
+                data=request.form,
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+                timeout=10,
+            )
+            app.logger.info(
+                "\033[1;96;1m * * * 📢 Response status code: %d\033[0m ", r.status_code
             )
             r.raise_for_status()
             if r.status_code == 200:
-                return render_template("view/greet.html")
-            else:
-                return render_template("forms/loginform.html")
+                app.logger.info("\033[1;96;1m * * * 🔑 Login successful\033[0m ")
+                return render_template("view/greet.html")  # Ensure this template exists
+            app.logger.warning("Unexpected status code: %d", r.status_code)
+            return render_template("forms/loginform.html")
         except requests.exceptions.RequestException as e:
             app.logger.error(
-                "\033[1;91;1m * * * 🆘 Login request failed: %s\033[0m",
+                "\033[1;96;1m * * * 🆘 Login request failed: %s\033[0m",
                 e,
                 exc_info=True,
             )
             return render_template("forms/loginform.html")
-    return abort(405)
+
+    abort(405)
 
 
 @app.route("/logout", methods=["GET"])
@@ -283,11 +293,11 @@ def logoutuser():
 @app.route("/signup", methods=["GET", "POST"])
 def signupuser():
     """route to sign up a user"""
+    url = f"http://{IP}:{PORT}/signup"
     if request.method == "GET":
         app.logger.info("\033[1;96;1m * * * 🔐 Signup, GET to %s\033[0m", url)
         return render_template("forms/signupform.html")
     if request.method == "POST":
-        url = f"http://{IP}:{PORT}/signup"
         app.logger.info("\033[1;96;1m * * * 🔐 Signup, POST to %s\033[0m", url)
         try:
             r = requests.post(
@@ -312,12 +322,11 @@ def signupuser():
 def delete_user():
     """Route to delete a user"""
     user_id = request.args.get("id")
+    url = f"http://{IP}:{PORT}/user/{user_id}"
 
     if not user_id:
         app.logger.error("\033[1;91;1m * * * 🆘 User ID is missing: %s\033[0m", user_id)
         return jsonify({"success": False, "error": "User ID required"}), 400
-
-    url = f"http://{IP}:{PORT}/user/{user_id}"
     app.logger.info("\033[1;96;1m * * * 🧹 Delete user, DELETE to %s\033[0m", url)
     try:
         response = requests.delete(url, timeout=10)
