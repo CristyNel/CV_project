@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/CristyNel/CV_project/tree/main/api/mock"
 	"github.com/DATA-DOG/go-sqlmock"
 	wkhtml "github.com/SebastiaanKlippert/go-wkhtmltopdf"
-	"github.com/damarisnicolae/CV_project/api/mock"
 	"github.com/stretchr/testify/assert"
 )
 

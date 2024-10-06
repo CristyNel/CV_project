@@ -7,9 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/CristyNel/CV_project/tree/main/api/mock"
+	"github.com/CristyNel/CV_project/tree/main/api/models"
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/damarisnicolae/CV_project/api/mock"
-	"github.com/damarisnicolae/CV_project/api/models"
 	"github.com/stretchr/testify/assert"
 )
 

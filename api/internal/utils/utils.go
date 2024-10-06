@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/damarisnicolae/CV_project/api/internal/app"
+	"github.com/CristyNel/CV_project/tree/main/api/internal/app"
 	"github.com/gorilla/securecookie"
 	"golang.org/x/crypto/bcrypt"
 )

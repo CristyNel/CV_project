@@ -8,48 +8,54 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/damarisnicolae/CV_project/api/internal/app"
-	"github.com/damarisnicolae/CV_project/api/internal/utils"
-	"github.com/damarisnicolae/CV_project/api/models"
+	"github.com/CristyNel/CV_project/tree/main/api/internal/app"
+	"github.com/CristyNel/CV_project/tree/main/api/internal/utils"
+	"github.com/CristyNel/CV_project/tree/main/api/models"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 )
 
+// SignupRequest represents the request payload for user signup
+type SignupRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 func LoginHandler(app *app.App, w http.ResponseWriter, r *http.Request) {
-    app.Logger.Println("Received request for /login")
+	app.Logger.Println("Received request for /login")
 
-    if err := r.ParseForm(); err != nil {
-        app.Logger.Println("Error parsing form:", err)
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-        return
-    }
+	if err := r.ParseForm(); err != nil {
+		app.Logger.Println("Error parsing form:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
-    username := strings.TrimSpace(r.Form.Get("username"))
-    password := r.Form.Get("password")
+	username := strings.TrimSpace(r.Form.Get("username"))
+	password := r.Form.Get("password")
 
-    app.Logger.Println("Parsed form data - Username:", username) // , "Password:", password
+	app.Logger.Println("Parsed form data - Username:", username) // , "Password:", password
 
-    if username == "" || password == "" {
-        app.Logger.Println("Missing username or password")
-        http.Error(w, "Bad Request", http.StatusBadRequest)
-        return
-    }
+	if username == "" || password == "" {
+		app.Logger.Println("Missing username or password")
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
 
-    if utils.VerifyLogin(app, username, password) {
-        response := struct {
-            Username string `json:"username"`
-        }{
-            Username: username,
-        }
+	if utils.VerifyLogin(app, username, password) {
+		response := struct {
+			Username string `json:"username"`
+		}{
+			Username: username,
+		}
 
-        w.Header().Set("Content-Type", "application/json")
-        utils.SetSession(app, username, w)
-        w.WriteHeader(http.StatusOK)
-        json.NewEncoder(w).Encode(response)
-    } else {
-        app.Logger.Println("Unauthorized access attempt by:", username)
-        http.Error(w, "Unauthorized", http.StatusUnauthorized)
-    }
+		w.Header().Set("Content-Type", "application/json")
+		utils.SetSession(app, username, w)
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+	} else {
+		app.Logger.Println("Unauthorized access attempt by:", username)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	}
 }
 
 func LogoutHandler(app *app.App, w http.ResponseWriter, r *http.Request) {
@@ -70,15 +76,23 @@ func LogoutHandler(app *app.App, w http.ResponseWriter, r *http.Request) {
 func SignupHandler(app *app.App, w http.ResponseWriter, r *http.Request) {
 	app.Logger.Println("Received request for /signup")
 
-	err := r.ParseForm()
-	if err != nil {
-		app.Logger.Println("Error parse form: ", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	// Check if the Content-Type is application/json
+	if r.Header.Get("Content-Type") != "application/json" {
+		http.Error(w, "Invalid Content-Type", http.StatusUnsupportedMediaType)
 		return
 	}
 
-	email := strings.TrimSpace(r.Form.Get("email"))
-	password := r.Form.Get("password")
+	// Decode the JSON request body
+	var req SignupRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		app.Logger.Println("Error decoding JSON: ", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	email := strings.TrimSpace(req.Email)
+	password := req.Password
 
 	if email == "" || password == "" {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -98,7 +112,7 @@ func SignupHandler(app *app.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("User signup successfully"))
 }
 

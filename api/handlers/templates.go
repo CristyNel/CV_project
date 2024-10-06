@@ -11,10 +11,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/CristyNel/CV_project/tree/main/api/internal/app"
+	"github.com/CristyNel/CV_project/tree/main/api/internal/utils"
+	"github.com/CristyNel/CV_project/tree/main/api/models"
 	wkhtml "github.com/SebastiaanKlippert/go-wkhtmltopdf"
-	"github.com/damarisnicolae/CV_project/api/internal/app"
-	"github.com/damarisnicolae/CV_project/api/internal/utils"
-	"github.com/damarisnicolae/CV_project/api/models"
 )
 
 func GenerateTemplate(app *app.App, w http.ResponseWriter, r *http.Request) {

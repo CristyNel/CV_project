@@ -3,35 +3,118 @@ name: API E2E Tests
 
 vars:
   sql_ip: ""
-  api_ip: ""
+  api_ip: "cv_api-service"
+  username: "{{ MYSQL_USER }}"
+  user_password: "{{ MYSQL_PASSWORD }}"
 
 testcases:
-  - name: Fetch DB Container IP
+  - name: Home
     steps:
-      - type: exec
-        script: docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' cv_db-container
+      - type: http
+        method: GET
+        url: "http://{{.api_ip}}:8080/"
         assertions:
-          - result.code ShouldEqual 0
-        extract:
-          sql_ip: result.systemout
+          - result.statuscode ShouldEqual 200
 
-  - name: Fetch API Container IP
+  - name: HomeUsers
     steps:
-      - type: exec
-        script: docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' cv_api-container
+      - type: http
+        method: GET
+        url: "http://{{.api_ip}}:8080/users"
         assertions:
-          - result.code ShouldEqual 0
-        extract:
-          api_ip: result.systemout
+          - result.statuscode ShouldEqual 200
+
+  - name: ShowUser
+    steps:
+      - type: http
+        method: GET
+        url: "http://{{.api_ip}}:8080/user/6"
+        assertions:
+          - result.statuscode ShouldEqual 200
+
+  - name: ShowUsers
+    steps:
+      - type: http
+        method: GET
+        url: "http://{{.api_ip}}:8080/user"
+        assertions:
+          - result.statuscode ShouldEqual 200
 
   - name: DeleteUser
     steps:
       - type: http
         method: DELETE
-        # url: "http://cv_api-service:8080/user/2" only if manualy solve ip
-        # url: "http://172.26.0.3:8080/user/5"  # merge
-        url: "http://{{.api_ip}}:8080/user/7" # merge
-        headers:
-          Content-Type: application/json
+        url: "http://{{.api_ip}}:8080/user/6"
         assertions:
           - result.statuscode ShouldEqual 204
+
+  - name: UpdateUser
+    steps:
+      - type: http
+        method: PUT
+        url: "http://{{.api_ip}}:8080/user/6"
+        headers:
+          Content-Type: application/json
+        body: '{"name": "cristy buliga", "email": "cristybuliga@example.com"}'
+        assertions:
+          - result.statuscode ShouldEqual 200
+
+  - name: HealthCheck
+    steps:
+      - type: http
+        method: GET
+        url: "http://{{.api_ip}}:8080/health"
+        assertions:
+          - result.statuscode ShouldEqual 200
+# failing test
+
+#  - name: CreateUser
+#    steps:
+#      - type: http
+#        method: POST
+#        url: "http://{{.api_ip}}:8080/user"
+#        headers:
+#          Content-Type: application/json
+#        body: '{"name": "cristy buliga", "email": "cristybuliga@example.com"}'
+#        assertions:
+#          - result.statuscode ShouldEqual 201
+
+#  - name: GenerateTemplate
+#    steps:
+#      - type: http
+#        method: GET
+#        url: "http://{{.api_ip}}:8080/pdf"
+#        assertions:
+#          - result.statuscode ShouldEqual 200
+
+#  - name: Login
+#    steps:
+#      - type: http
+#        method: POST
+#        url: "http://cv_bff-service:5000/login"
+#        headers:
+#          Content-Type: application/json
+#        body: '{"username": "{{.username}}", "password": "{{.user_password}}"}'
+#        assertions:
+#          - result.statuscode ShouldEqual 200
+
+#  - name: Signup
+#    steps:
+#      - type: http
+#        method: POST
+#        url: "http://{{.api_ip}}:8080/signup"
+#        headers:
+#          Content-Type: application/json
+#        body: '{"username": "Nelu", "password": "pass"}'
+#        assertions:
+#          - result.statuscode ShouldEqual 201
+
+#
+#  - name: Logout
+#    steps:
+#      - type: http
+#        method: POST
+#        url: "http://{{.api_ip}}:8080/logout"
+#        assertions:
+#          - result.statuscode ShouldEqual 200
+

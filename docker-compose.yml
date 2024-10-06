@@ -1,8 +1,8 @@
 # ./docker-compose.yml
 services:
   cv_db-service:
-    env_file:
-      - ./.secrets
+    # env_file:
+    #   - ./.secrets
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -28,8 +28,8 @@ services:
     command: mysqld
 
   cv_api-service:
-    env_file:
-      - ./.secrets
+    # env_file:
+    #   - ./.secrets
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -54,8 +54,8 @@ services:
     restart: always
 
   cv_bff-service:
-    env_file:
-      - ./.secrets
+    # env_file:
+    #   - ./.secrets
     environment:
       BFF_IMG: ${BFF_IMG}
       BFF_TAG: ${BFF_TAG}
@@ -76,6 +76,38 @@ services:
       cv_db-service:
         condition: service_healthy
 
+  cv_venom-service:
+    container_name: cv_venom-container
+    image: alpine:3.12    #curl -s https://registry.hub.docker.com/v2/repositories/ovhcom/venom/tags | jq -r '.results[] | .name + " - " + (.last_updated | split("T")[0])' | sort -t '-' -k 2 -r
+    profiles: [ "test" ]
+    # env_file:
+    #   - ./.secrets
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_HOST: ${MYSQL_HOST}
+      # api
+      API_CONTAINER: ${API_CONTAINER}
+      API_IP: ${API_IP}
+      API_PORT: ${API_PORT}
+      # bff
+      BFF_IMG: ${BFF_IMG}
+      BFF_TAG: ${BFF_TAG}
+      BFF_CONTAINER: ${BFF_CONTAINER}
+    depends_on:
+      cv_db-service:
+        condition: service_healthy
+    entrypoint: [ "sh", "-c", "wget https://github.com/ovh/venom/releases/download/v1.1.0/venom.linux-amd64 -O /usr/local/bin/venom && chmod +x /usr/local/bin/venom && venom run e2etests.yml" ]
+    volumes:
+      - ./api/tests:/app
+    working_dir: /app
+    networks:
+      - cv-network
+
+
+
 networks:
   cv-network:
     name: cv-network
@@ -88,11 +120,3 @@ networks:
 #   mysql-data:
 #     name: cv_db-volume
 
-  # venom:
-  #   build: 
-  #     context: tests
-  #   container_name: venom
-  #   profiles: [ "test" ]
-  #   depends_on:
-  #     api:
-  #       condition: service_healthy

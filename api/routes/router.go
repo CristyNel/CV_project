@@ -4,9 +4,8 @@ package routes
 import (
 	"net/http"
 
-	"github.com/damarisnicolae/CV_project/api/handlers"
-	"github.com/damarisnicolae/CV_project/api/internal/app"
-
+	"github.com/CristyNel/CV_project/tree/main/api/handlers"
+	"github.com/CristyNel/CV_project/tree/main/api/internal/app"
 	"github.com/gorilla/mux"
 )
 
@@ -31,8 +30,8 @@ func InitializeRouter(app *app.App) *mux.Router {
 	}).Methods("POST")
 
 	r.HandleFunc("/user/{id}", func(w http.ResponseWriter, r *http.Request) {
-        handlers.ShowUser(app, w, r)  // <-- Added this route
-    }).Methods("GET")
+		handlers.ShowUser(app, w, r) // <-- Added this route
+	}).Methods("GET")
 
 	r.HandleFunc("/user/{id}", func(w http.ResponseWriter, r *http.Request) {
 		handlers.UpdateUser(app, w, r)

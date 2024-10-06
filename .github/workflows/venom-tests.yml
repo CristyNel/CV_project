@@ -1,6 +1,6 @@
 #? CV_project/.github/workflows/venom-tests.yml
 ---
-name: venom tests
+name: 🐍 Venom tests
 
 # events workflow
 on:
@@ -15,63 +15,49 @@ on:
 jobs:
   venom-tests:
     runs-on: ubuntu-latest
-
+    environment: CV_project-staging
     steps:
-      - name: checkout code
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@main
 
-      - name: set up go
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1.23.1
-
-      # - name: Verify go installation
-      #   run: |
-      #     echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * 🐹 Go version'
-      #     go version
-
-      # - name: Install dependencies
-      #   working-directory: ./api
-      #   run: |
-      #     echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * 🧰 Install dependencies'
-      #     go mod tidy
-
-      # - name: Install docker compose
-      #   run: |
-      #     echo -e '\033[94;1m * * * 🐳 Installing docker compose'
-      #     sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
-      #     sudo chmod +x /usr/local/bin/docker-compose
-
-      # - name: Set up Docker Compose
-      #   run: |
-      #     echo -e '\033[94;1m * * * 🛠️  Set up Docker'
-      #     docker-compose -f ./docker-compose.yml up -d
-      #   env:
-      #     MYSQL_CONTAINER: ${{ secrets.MYSQL_CONTAINER }}
-      #     MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-      #     MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-      #     MYSQL_USER: ${{ secrets.MYSQL_USER }}
-      #     MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-      #     API_IMG: ${{ secrets.API_IMG }}
-      #     API_TAG: ${{ secrets.API_TAG }}
-      #     API_CONTAINER: ${{ secrets.API_CONTAINER }}
-      #     BFF_IMG: ${{ secrets.BFF_IMG }}
-      #     BFF_TAG: ${{ secrets.BFF_TAG }}
-      #     BFF_CONTAINER: ${{ secrets.BFF_CONTAINER }}          
-          
-      - name: Install venom
+      - name: Install docker compose
         run: |
-          echo -e '\033[94;1m * * * 🐍 Installing venom'
-          curl https://github.com/ovh/venom/releases/download/v1.0.1/venom.linux-amd64 -L -o /usr/local/bin/venom
-          chmod +x /usr/local/bin/venom
+          echo -e '\033[94;1m * * * 🐳 Installing docker compose'
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
 
-      - name: Run e2e tests
-        working-directory: ./api/tests
+      - name: Set up Docker Compose
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_ROOT_USER: ${{ secrets.MYSQL_ROOT_USER }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          API_CONTAINER: ${{ vars.API_CONTAINER }}
+          API_HOST: ${{ vars.API_HOST }}
+          API_IMG: ${{ vars.API_IMG }}
+          API_IP: ${{ vars.API_IP }}
+          API_PORT: ${{ vars.API_PORT }}
+          API_SERVICE: ${{ vars.API_SERVICE }}
+          API_TAG: ${{ vars.API_TAG }}
+          API_URL: ${{ vars.API_URL }}
+          BFF_CONTAINER: ${{ vars.BFF_CONTAINER }}
+          BFF_HOST: ${{ vars.BFF_HOST }}
+          BFF_IMG: ${{ vars.BFF_IMG }}
+          BFF_IP: ${{ vars.BFF_IP }}
+          BFF_PORT: ${{ vars.BFF_PORT }}
+          BFF_SERVICE: ${{ vars.BFF_SERVICE }}
+          BFF_TAG: ${{ vars.BFF_TAG }}
+          CV_NETWORK: ${{ vars.CV_NETWORK }}
+          MYSQL_ADDR: ${{ vars.MYSQL_ADDR }}
+          MYSQL_CONTAINER: ${{ vars.MYSQL_CONTAINER }}
+          MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
+          MYSQL_HOST: ${{ vars.MYSQL_HOST }}
+          MYSQL_IMG: ${{ vars.MYSQL_IMG }}
+          MYSQL_IP: ${{ vars.MYSQL_IP }}
+          MYSQL_LOCAL_IP: ${{ vars.MYSQL_LOCAL_IP }}
         run: |
-          echo -e '\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * ⭐ Run e2e tests'
-          venom run e2etests.yml
-
-      # - name: Stop docker compose
-      #   run: |
-      #     echo -e '\033[94;1m * * * ❌ Stop docker compose'
-      #     docker-compose -f ./docker-compose.yml down --volumes
+          echo -e '\033[94;1m * * * 🛠️  Set up Docker''\033[94;1m * * * 🔗 pwd = '$(pwd) '\n\033[94;1m * * * ⭐ Run e2e tests'
+          echo 0 > venom-status.txt
+          docker-compose -f ./docker-compose.yml --profile=test up --build --exit-code-from cv_venom-service || echo $$ > venom-status.txt
+          exit `cat venom-status.txt`
+        working-directory: .

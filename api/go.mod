@@ -1,5 +1,5 @@
 // bcn/github/CV_project/api/go.mod
-module github.com/damarisnicolae/CV_project/api
+module github.com/CristyNel/CV_project/tree/main/api
 
 go 1.22
 

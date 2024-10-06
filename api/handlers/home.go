@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/damarisnicolae/CV_project/api/internal/app"
-	"github.com/damarisnicolae/CV_project/api/models"
+	"github.com/CristyNel/CV_project/tree/main/api/internal/app"
+	"github.com/CristyNel/CV_project/tree/main/api/models"
 )
 
 func HomeUsers(app *app.App, w http.ResponseWriter, r *http.Request) {
-	app.Logger.Println("Received request for /users")
+	app.Logger.Println(" * * * ☎️ Received request for /users")
 
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -47,7 +47,7 @@ func Home(app *app.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.Logger.Println("Received request for /")
+	app.Logger.Println(" * * * ☎️ Received request for /")
 
 	rows, err := app.DB.Query("SELECT id, jobtitle, firstname, lastname, email, phone, address, city, country, postalcode, dateofbirth, nationality, summary, workexperience, education, skills, languages FROM users")
 	if err != nil {

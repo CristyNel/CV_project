@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"testing"
 
+	"github.com/CristyNel/CV_project/tree/main/api/internal/app"
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/damarisnicolae/CV_project/api/internal/app"
 	"github.com/sirupsen/logrus"
 )
 

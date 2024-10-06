@@ -1,6 +1,6 @@
 #? CV_project/.github/workflows/unit-tests.yml
 ---
-name: unit tests
+name: 🔩 Unit tests
 
 on:
   push:

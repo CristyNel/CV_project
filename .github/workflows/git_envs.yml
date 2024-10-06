@@ -1,0 +1,76 @@
+# .github/workflows/git_envs.yml
+name: 💻 Display Variables
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  display-vars:
+    runs-on: ubuntu-latest
+    environment: CV_project-staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Display Environment Variables
+        env:
+          API_CONTAINER: ${{ vars.API_CONTAINER }}
+          API_HOST: ${{ vars.API_HOST }}
+          API_IMG: ${{ vars.API_IMG }}
+          API_IP: ${{ vars.API_IP }}
+          API_PORT: ${{ vars.API_PORT }}
+          API_SERVICE: ${{ vars.API_SERVICE }}
+          API_TAG: ${{ vars.API_TAG }}
+          API_URL: ${{ vars.API_URL }}
+          BFF_CONTAINER: ${{ vars.BFF_CONTAINER }}
+          BFF_HOST: ${{ vars.BFF_HOST }}
+          BFF_IMG: ${{ vars.BFF_IMG }}
+          BFF_IP: ${{ vars.BFF_IP }}
+          BFF_PORT: ${{ vars.BFF_PORT }}
+          BFF_SERVICE: ${{ vars.BFF_SERVICE }}
+          BFF_TAG: ${{ vars.BFF_TAG }}
+          CV_NETWORK: ${{ vars.CV_NETWORK }}
+          MYSQL_ADDR: ${{ vars.MYSQL_ADDR }}
+          MYSQL_CONTAINER: ${{ vars.MYSQL_CONTAINER }}
+          MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
+          MYSQL_HOST: ${{ vars.MYSQL_HOST }}
+          MYSQL_IMG: ${{ vars.MYSQL_IMG }}
+          MYSQL_IP: ${{ vars.MYSQL_IP }}
+          MYSQL_LOCAL_IP: ${{ vars.MYSQL_LOCAL_IP }}
+        run: |
+          echo -e '\033[94;1m * * * 🛠️  Displaying Environment Variables'
+          echo "API_CONTAINER=${API_CONTAINER}"
+          echo "API_HOST=${API_HOST}"
+          echo "API_IMG=${API_IMG}"
+          echo "API_IP=${API_IP}"
+          echo "API_PORT=${API_PORT}"
+          echo "API_SERVICE=${API_SERVICE}"
+          echo "API_TAG=${API_TAG}"
+          echo "API_URL=${API_URL}"
+          echo "BFF_CONTAINER=${BFF_CONTAINER}"
+          echo "BFF_HOST=${BFF_HOST}"
+          echo "BFF_IMG=${BFF_IMG}"
+          echo "BFF_IP=${BFF_IP}"
+          echo "BFF_PORT=${BFF_PORT}"
+          echo "BFF_SERVICE=${BFF_SERVICE}"
+          echo "BFF_TAG=${BFF_TAG}"
+          echo "CV_NETWORK=${CV_NETWORK}"
+          echo "MYSQL_ADDR=${MYSQL_ADDR}"
+          echo "MYSQL_CONTAINER=${MYSQL_CONTAINER}"
+          echo "MYSQL_DATABASE=${MYSQL_DATABASE}"
+          echo "MYSQL_HOST=${MYSQL_HOST}"
+          echo "MYSQL_IMG=${MYSQL_IMG}"
+          echo "MYSQL_IP=${MYSQL_IP}"
+          echo "MYSQL_LOCAL_IP=${MYSQL_LOCAL_IP}"
+
+      - name: Display Secrets
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+        run: |
+          echo -e '\033[94;1m * * * 🛠️  Displaying Secrets'
+          echo "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
+          echo "MYSQL_PASSWORD=${MYSQL_PASSWORD}"

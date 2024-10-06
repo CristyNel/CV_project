@@ -9,8 +9,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/damarisnicolae/CV_project/api/internal/app"
-	"github.com/damarisnicolae/CV_project/api/mock"
+	"github.com/CristyNel/CV_project/tree/main/api/internal/app"
+	"github.com/CristyNel/CV_project/tree/main/api/mock"
 	"github.com/gorilla/securecookie"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
