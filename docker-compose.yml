@@ -1,12 +1,15 @@
+# ./docker-compose.yml
 services:
   cv_db-service:
-    image: mysql:9.0
+    env_file:
+      - ./.secrets
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_CONTAINER: ${MYSQL_CONTAINER}
+    image: mysql:9.0
     container_name: ${MYSQL_CONTAINER}
     networks:
       - cv-network
@@ -14,22 +17,19 @@ services:
       - 3307:3306
     volumes:
       - ./sql/schemadump.sql:/docker-entrypoint-initdb.d/dump.sql
+      # - mysql-data:/var/lib/mysql
     healthcheck:
       test: [CMD, mysqladmin, ping, -h, localhost]
-      interval: 12s
-      timeout: 8s
+      interval: 20s
+      timeout: 10s
       retries: 5
-      start_period: 5s
+      start_period: 10s
     restart: always
-    command: >
-      mysqld; sh -c "
-      echo 'Europe/London' > /etc/timezone && \
-      cp /usr/share/zoneinfo/Europe/London /etc/localtime"
+    command: mysqld
 
   cv_api-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.api
+    env_file:
+      - ./.secrets
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -39,6 +39,9 @@ services:
       API_TAG: ${API_TAG}
       API_CONTAINER: ${API_CONTAINER}
       MYSQL_HOST: ${MYSQL_HOST}
+    build:
+      context: .
+      dockerfile: Dockerfile.api
     image: ${API_IMG}:${API_TAG}
     container_name: ${API_CONTAINER}
     ports:
@@ -51,6 +54,8 @@ services:
     restart: always
 
   cv_bff-service:
+    env_file:
+      - ./.secrets
     environment:
       BFF_IMG: ${BFF_IMG}
       BFF_TAG: ${BFF_TAG}
@@ -75,3 +80,19 @@ networks:
   cv-network:
     name: cv-network
     driver: bridge
+    # ipam:
+    #   config:
+    #     - subnet: 172.18.0.0/16
+    #       gateway: 172.18.0.1
+# volumes:
+#   mysql-data:
+#     name: cv_db-volume
+
+  # venom:
+  #   build: 
+  #     context: tests
+  #   container_name: venom
+  #   profiles: [ "test" ]
+  #   depends_on:
+  #     api:
+  #       condition: service_healthy
