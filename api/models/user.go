@@ -2,7 +2,7 @@
 
 package models
 
-// Database rappresentation 
+// Database rappresentation
 type User struct {
 	ID             int    `json:"id"`
 	Jobtitle       string `json:"jobtitle"`

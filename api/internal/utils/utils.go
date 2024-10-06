@@ -4,6 +4,7 @@ package utils
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 
@@ -33,6 +34,11 @@ func GetEnv(app *app.App, key, fallback string) string {
 
 // VerifyLogin verifies the username and password against the stored hash in the database.
 func VerifyLogin(app *app.App, username, password string) bool {
+	if app == nil {
+		log.Println("App is nil")
+		return false
+	}
+
 	if app.DB == nil {
 		app.Logger.Println("Database connection is nil")
 		return false

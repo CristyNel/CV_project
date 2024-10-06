@@ -3,15 +3,16 @@ package utils
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/damarisnicolae/CV_project/api/internal/app"
 	"github.com/damarisnicolae/CV_project/api/mock"
 	"github.com/gorilla/securecookie"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -29,60 +30,75 @@ func TestGetEnv(t *testing.T) {
 
 // TestVerifyLogin tests the VerifyLogin function
 func TestVerifyLogin(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	assert.NoError(t, err)
+	// Initialize the app with a mock database and logger
+	db, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		t.Fatalf("Failed to open database: %v", err)
+	}
 	defer db.Close()
 
-	app := &app.App{DB: db}
+	// Create a mock logger
+	logger := log.New(os.Stdout, "test: ", log.LstdFlags)
 
-	// Mock valid user
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
-	mock.ExpectQuery("SELECT password FROM userlogin WHERE username = ?").
-		WithArgs("user").
-		WillReturnRows(sqlmock.NewRows([]string{"password"}).AddRow(string(hashedPassword)))
+	// Initialize the app
+	app := &app.App{
+		DB:     db,
+		Logger: logger,
+	}
 
-	// Test successful login
-	assert.True(t, VerifyLogin(app, "user", "password"))
+	// Create a mock user table and insert a test user
+	_, err = db.Exec("CREATE TABLE user_session (username TEXT, password TEXT)")
+	if err != nil {
+		t.Fatalf("Failed to create table: %v", err)
+	}
 
-	// Test incorrect password
-	assert.False(t, VerifyLogin(app, "user", "wrongpassword"))
+	// Insert a test user with a hashed password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("testpassword"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatalf("Failed to hash password: %v", err)
+	}
+	_, err = db.Exec("INSERT INTO user_session (username, password) VALUES (?, ?)", "testuser", string(hashedPassword))
+	if err != nil {
+		t.Fatalf("Failed to insert test user: %v", err)
+	}
 
-	// Mock non-existent user
-	mock.ExpectQuery("SELECT password FROM userlogin WHERE username = ?").
-		WithArgs("nonexistent").
-		WillReturnError(sql.ErrNoRows)
+	// Run the test
+	if !VerifyLogin(app, "testuser", "testpassword") {
+		t.Error("Expected login to succeed for valid credentials")
+	}
 
-	// Test non-existent user
-	assert.False(t, VerifyLogin(app, "nonexistent", "password"))
+	if VerifyLogin(app, "testuser", "wrongpassword") {
+		t.Error("Expected login to fail for invalid credentials")
+	}
 
-	// Ensure all expectations are met
-	err = mock.ExpectationsWereMet()
-	assert.NoError(t, err)
+	if VerifyLogin(app, "nonexistentuser", "testpassword") {
+		t.Error("Expected login to fail for nonexistent user")
+	}
 }
 
 // TestSetSession tests the SetSession function
 func TestSetSession(t *testing.T) {
-    // Initialize CookieHandler
-    CookieHandler = securecookie.New(
-        securecookie.GenerateRandomKey(64),
-        securecookie.GenerateRandomKey(32),
-    )
+	// Initialize CookieHandler
+	CookieHandler = securecookie.New(
+		securecookie.GenerateRandomKey(64),
+		securecookie.GenerateRandomKey(32),
+	)
 
-    // Create a mock response recorder
-    w := httptest.NewRecorder()
+	// Create a mock response recorder
+	w := httptest.NewRecorder()
 
-    // Create a mock app with the mock logger
-    mockApp := &app.App{
-        Logger: mock.NewMockLogger(),
-    }
+	// Create a mock app with the mock logger
+	mockApp := &app.App{
+		Logger: mock.NewMockLogger(),
+	}
 
-    // Call SetSession
-    SetSession(mockApp, "testuser", w)
+	// Call SetSession
+	SetSession(mockApp, "testuser", w)
 
-    // Check if the cookie is correctly set
-    cookie := w.Result().Cookies()[0]
-    assert.Equal(t, "session", cookie.Name)
-    assert.NotEmpty(t, cookie.Value)
+	// Check if the cookie is correctly set
+	cookie := w.Result().Cookies()[0]
+	assert.Equal(t, "session", cookie.Name)
+	assert.NotEmpty(t, cookie.Value)
 }
 
 // TestErrorResponse tests the ErrorResponse function
