@@ -1,4 +1,3 @@
-// * CV_project/api/routes/router.go
 package routes
 
 import (
@@ -6,57 +5,57 @@ import (
 
 	"github.com/CristyNel/CV_project/tree/main/api/handlers"
 	"github.com/CristyNel/CV_project/tree/main/api/internal/app"
+	"github.com/CristyNel/CV_project/tree/main/api/internal/auth"
 	"github.com/gorilla/mux"
 )
 
+// InitializeRouter initializes the router and returns it
 func InitializeRouter(app *app.App) *mux.Router {
 	r := mux.NewRouter()
 
-	// routes
+	// Public routes
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		handlers.Home(app, w, r)
 	}).Methods("GET")
 
-	r.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
-		handlers.HomeUsers(app, w, r)
-	}).Methods("GET")
-
-	r.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
-		handlers.ShowUsers(app, w, r)
-	}).Methods("GET")
-
-	r.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
-		handlers.CreateUser(app, w, r)
-	}).Methods("POST")
-
-	r.HandleFunc("/user/{id}", func(w http.ResponseWriter, r *http.Request) {
-		handlers.ShowUser(app, w, r) // <-- Added this route
-	}).Methods("GET")
-
-	r.HandleFunc("/user/{id}", func(w http.ResponseWriter, r *http.Request) {
-		handlers.UpdateUser(app, w, r)
-	}).Methods("PUT")
-
-	r.HandleFunc("/user/{id}", func(w http.ResponseWriter, r *http.Request) {
-		handlers.DeleteUser(app, w, r)
-	}).Methods("DELETE")
-
-	r.HandleFunc("/pdf", func(w http.ResponseWriter, r *http.Request) {
-		handlers.GenerateTemplate(app, w, r)
-	}).Methods("GET")
-
 	r.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-		handlers.LoginHandler(app, w, r)
+		auth.LoginHandler(app, w, r)
 	}).Methods("POST")
 
 	r.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) {
-		handlers.SignupHandler(app, w, r)
+		auth.SignupHandler(app, w, r)
 	}).Methods("POST")
 
-	r.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
-		handlers.LogoutHandler(app, w, r)
-	}).Methods("POST")
-	// health check
+	// Protected routes
+	r.Handle("/users", app.RequireAuthentication(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handlers.ShowUsers(app, w, r)
+	}))).Methods("GET")
+
+	r.Handle("/user", app.RequireAuthentication(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handlers.CreateUser(app, w, r)
+	}))).Methods("POST")
+
+	r.Handle("/user/{id}", app.RequireAuthentication(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handlers.ShowUser(app, w, r)
+	}))).Methods("GET")
+
+	r.Handle("/user/{id}", app.RequireAuthentication(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handlers.UpdateUser(app, w, r)
+	}))).Methods("PUT")
+
+	r.Handle("/user/{id}", app.RequireAuthentication(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handlers.DeleteUser(app, w, r)
+	}))).Methods("DELETE")
+
+	r.Handle("/pdf", app.RequireAuthentication(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handlers.GenerateTemplate(app, w, r)
+	}))).Methods("GET")
+
+	r.Handle("/logout", app.RequireAuthentication(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth.LogoutHandler(app, w, r)
+	}))).Methods("POST")
+
+	// Health check
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("API is running"))

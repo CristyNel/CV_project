@@ -1,4 +1,3 @@
-// * CV_project/api/internal/database/db.go
 package database
 
 import (
@@ -10,7 +9,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-// * connection to the database
+// ConnectToDatabases establishes a connection to the database using the provided SQL open function.
 func ConnectToDatabases(sqlOpen func(driverName, dataSourceName string) (*sql.DB, error)) (*sql.DB, error) {
 	getEnv := func(key, fallback string) string {
 		if value, exists := os.LookupEnv(key); exists {
@@ -43,7 +42,7 @@ func ConnectToDatabases(sqlOpen func(driverName, dataSourceName string) (*sql.DB
 	fmt.Println("\n * Opening database connection...")
 	db, err := sqlOpen("mysql", dsn)
 	if err != nil {
-		fmt.Println("Error connecting:", err)
+		fmt.Println(" * * * ⛔️ Error connecting:", err)
 		return nil, err
 	}
 

@@ -5,7 +5,7 @@ from flask_migrate import Migrate
 from decouple import config
 
 # initialize flask app
-app = Flask(__name__, template_folder='../templates', static_folder='../static')
+app = Flask(__name__, template_folder="../templates", static_folder="../static")
 
 # load configuration from environment variable
 app.config.from_object(config("APP_SETTINGS"))
@@ -16,4 +16,4 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # import routes or additional app setup here
-from . import app  
+from . import app

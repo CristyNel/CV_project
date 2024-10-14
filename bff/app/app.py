@@ -10,7 +10,17 @@ import json
 import os
 
 import requests
-from flask import Flask, request, jsonify, render_template, send_from_directory, abort
+from flask import (
+    Flask,
+    request,
+    jsonify,
+    render_template,
+    send_from_directory,
+    abort,
+    session,
+    redirect,
+    url_for,
+)
 from dotenv import load_dotenv
 from flask_cors import CORS
 
@@ -25,6 +35,9 @@ static_folder = os.path.join(project_root, "static")
 app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
 CORS(app)
 
+# Set the secret key for session management
+app.secret_key = os.getenv("SECRET_KEY", "your_secret_key")
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("flask.app")
@@ -35,13 +48,110 @@ app.logger.info("\033[1;96;1m * * * 🅿️ template_folder = %s\033[0m", templa
 app.logger.info("\033[1;96;1m * * * 🅿️ static_folder   = %s\033[0m", static_folder)
 
 
+def is_authenticated():
+    """Check if the user is authenticated."""
+    return "username" in session
+
+
+@app.before_request
+def require_authentication():
+    """Require authentication for all routes except login and static files."""
+    logger.info("require_authentication invoked for endpoint: %s", request.endpoint)
+
+    if "username" not in session:
+        logger.info("Session does not contain 'username'")
+
+        if request.endpoint not in ["loginuser", "signupuser", "static"]:
+            logger.warning("User not authenticated, redirecting to login")
+            return redirect(url_for("loginuser"))
+        else:
+            logger.info(
+                "Endpoint '%s' does not require authentication", request.endpoint
+            )
+    else:
+        logger.info("User authenticated for endpoint: %s", request.endpoint)
+
+
+@app.route("/login", methods=["GET", "POST"])
+def loginuser():
+    """Route to login a user"""
+    url = f"http://{IP}:{PORT}/login"
+    if request.method == "GET":
+        app.logger.info("\033[1;96;1m * * * 🔓 Login, GET to %s\033[0m", url)
+        return render_template("forms/loginform.html")
+
+    if request.method == "POST":
+        app.logger.info("\033[1;96;1m * * * 🔓 Login, POST to %s\033[0m", url)
+        try:
+            r = requests.post(
+                url,
+                data=request.form,
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+                timeout=10,
+            )
+            app.logger.info(
+                "\033[1;96;1m * * * 📢 Response status code: %d\033[0m ", r.status_code
+            )
+            r.raise_for_status()
+            if r.status_code == 200:
+                session["username"] = request.form["username"]
+                app.logger.info("\033[1;96;1m * * * 🔑 Login successful\033[0m ")
+                return redirect(url_for("home"))  # Redirect to the home page
+            app.logger.warning("Unexpected status code: %d", r.status_code)
+            return render_template(
+                "forms/loginform.html", error="Unexpected status code"
+            )
+        except requests.exceptions.RequestException as e:
+            app.logger.error(
+                "\033[1;96;1m * * * 🆘 Login request failed: %s\033[0m",
+                e,
+                exc_info=True,
+            )
+            return render_template("forms/loginform.html", error="Login request failed")
+
+    abort(405)
+
+
+@app.route("/users", methods=["GET"])
+def get_users():
+    """Route to get users"""
+    if not is_authenticated():
+        return redirect(url_for("loginuser"))
+
+    url = f"http://{IP}:{PORT}/users"
+    app.logger.info("\033[1;96;1m * * * 👥 Fetching users from: %s\033[0m", url)
+    try:
+        response = requests.get(url, timeout=10)
+        app.logger.info(
+            "\033[1;96;1m * * * 📢 Response status code: %d\033[0m ",
+            response.status_code,
+        )
+        response.raise_for_status()
+        users = response.json()
+        return jsonify(users)
+    except requests.exceptions.RequestException as e:
+        app.logger.error(
+            "\033[1;96;1m * * * 🆘 Request failed: %s\033[0m",
+            e,
+            exc_info=True,
+        )
+        abort(500)
+
+
 @app.route("/", methods=["GET"])
 def home():
     """Home route to fetch and display users."""
+    if not is_authenticated():
+        return redirect(url_for("loginuser"))
+
     url = f"http://{IP}:{PORT}/users"
     app.logger.info("\033[1;96;1m * * * 👥 Fetching users from: %s\033[0m", url)
     try:
         response = requests.get(url=url, timeout=12)
+        app.logger.info(
+            "\033[1;96;1m * * * 📢 Response status code: %d\033[0m ",
+            response.status_code,
+        )
         response.raise_for_status()
         if response.status_code == 200 and response.text:
             data = response.json()
@@ -61,32 +171,18 @@ def home():
     return render_template("view/home.html", users=data)
 
 
-@app.route("/users", methods=["GET"])
-def get_users():
-    """Route to fetch and display all users."""
-    url = f"http://{IP}:{PORT}/users"
-    app.logger.info("\033[1;96;1m * * * 👥 Fetching users from: %s\033[0m", url)
-    try:
-        response = requests.get(url=url, timeout=12)
-        response.raise_for_status()
-        if response.status_code == 200 and response.text:
-            data = response.json()
-        else:
-            app.logger.error("Received empty response or non-200 status")
-            return abort(500, description="Internal Server Error")
-    except requests.exceptions.RequestException as e:
-        app.logger.error("Request failed: %s", e, exc_info=True)
-        return abort(500, description="Internal Server Error")
-    return render_template("view/home.html", users=data)
-
-
 @app.route("/user", methods=["POST"])
 def add_user():
     """route to add a new user"""
     url = f"http://{IP}:{PORT}/user"
     app.logger.info("\033[1;96;1m * * * 👤 Add new user, POST to %s\033[0m", url)
     try:
-        requests.post(url=url, timeout=10)
+        requests.post(
+            url=url,
+            data=request.form,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            timeout=10,
+        )
     except requests.exceptions.RequestException as e:
         app.logger.error(
             "\033[1;91;1m * * * 🆘 Add user request failed: %s\033[0m", e, exc_info=True
@@ -116,25 +212,35 @@ def edit_user(user_id):
 
 @app.route("/postform", methods=["GET"])
 def get_postform():
-    """route to display the post form"""
+    """Route to display the post form"""
+    url = request.url
+    app.logger.info("\033[1;96;1m * * * 📄 Accessing post form at: %s\033[0m", url)
+    if not is_authenticated():
+        return redirect(url_for("loginuser"))
     return render_template("forms/post_form.html")
 
 
-@app.route("/editform", methods=["GET"])
-def get_user():
-    """route to display the edit form"""
-    url = f"http://{IP}:{PORT}/user"
-    app.logger.info("\033[1;96;1m * * * 📝 Edit form, GET to %s\033[0m", url)
+@app.route("/showuser/<int:user_id>", methods=["GET"])
+def show_user(user_id):
+    """Route to show a user"""
+    url = f"http://{IP}:{PORT}/user/{user_id}"
+    app.logger.info("\033[1;96;1m * * * 👤 Fetching user from: %s\033[0m", url)
     try:
-        u = requests.get(url=url, timeout=10)
-        u.raise_for_status()
-        data = u.json()
+        response = requests.get(url, timeout=10)
+        app.logger.info(
+            "\033[1;96;1m * * * 📢 Response status code: %d\033[0m ",
+            response.status_code,
+        )
+        response.raise_for_status()
+        user = response.json()
+        return jsonify(user)
     except requests.exceptions.RequestException as e:
         app.logger.error(
-            "\033[1;91;1m * * * 🆘 Get user request failed: %s\033[0m", e, exc_info=True
+            "\033[1;96;1m * * * 🆘 Request failed: %s\033[0m",
+            e,
+            exc_info=True,
         )
-        abort(500, description="Internal Server Error")
-    return render_template("forms/edit_form.html", data=data)
+        abort(500)
 
 
 @app.route("/template1/<user_id>", methods=["GET"])
@@ -236,58 +342,32 @@ def generate_template3():
     return render_template("view/template3.html", data=data, pdf_data=pdf_data)
 
 
-@app.route("/login", methods=["GET", "POST"])
-def loginuser():
-    """Route to login a user"""
-    url = f"http://{IP}:{PORT}/login"
-    if request.method == "GET":
-        app.logger.info("\033[1;96;1m * * * 🔓 Login, GET to %s\033[0m", url)
-        return render_template("forms/loginform.html")
-
-    if request.method == "POST":
-        app.logger.info("\033[1;96;1m * * * 🔓 Login, POST to %s\033[0m", url)
-        try:
-            # ? app.logger.info("\033[1;96;1m * * * 🔏 Form data: %s\033[0m ", request.form)
-            r = requests.post(
-                url,
-                data=request.form,
-                headers={"Content-Type": "application/x-www-form-urlencoded"},
-                timeout=10,
-            )
-            app.logger.info(
-                "\033[1;96;1m * * * 📢 Response status code: %d\033[0m ", r.status_code
-            )
-            r.raise_for_status()
-            if r.status_code == 200:
-                app.logger.info("\033[1;96;1m * * * 🔑 Login successful\033[0m ")
-                return render_template("view/greet.html")  # Ensure this template exists
-            app.logger.warning("Unexpected status code: %d", r.status_code)
-            return render_template("forms/loginform.html")
-        except requests.exceptions.RequestException as e:
-            app.logger.error(
-                "\033[1;96;1m * * * 🆘 Login request failed: %s\033[0m",
-                e,
-                exc_info=True,
-            )
-            return render_template("forms/loginform.html")
-
-    abort(405)
-
-
 @app.route("/logout", methods=["GET"])
 def logoutuser():
-    """route to logout a user"""
+    """Route to logout a user"""
     url = f"http://{IP}:{PORT}/logout"
     app.logger.info("\033[1;96;1m * * * 🔓 Logout, GET to %s\033[0m", url)
     try:
-        r = requests.post(url, timeout=10)
+        r = requests.get(url, timeout=10)
+        app.logger.info(
+            "\033[1;96;1m * * * 📢 Response status code: %d\033[0m ", r.status_code
+        )
         r.raise_for_status()
+        if r.status_code == 200:
+            session.pop("username", None)
+            app.logger.info("\033[1;96;1m * * * 🔑 Logout successful\033[0m ")
+            return render_template("forms/loginform.html")
+        app.logger.warning("Unexpected status code: %d", r.status_code)
+        return render_template("forms/loginform.html")
     except requests.exceptions.RequestException as e:
         app.logger.error(
-            "\033[1;91;1m * * * 🆘 Logout request failed: %s\033[0m", e, exc_info=True
+            "\033[1;96;1m * * * 🆘 Logout request failed: %s\033[0m",
+            e,
+            exc_info=True,
         )
-        return abort(500, description="Internal Server Error")
-    return render_template("view/home.html")
+        return render_template("forms/loginform.html")
+
+    abort(405)
 
 
 @app.route("/signup", methods=["GET", "POST"])

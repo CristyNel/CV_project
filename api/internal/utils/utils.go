@@ -1,4 +1,3 @@
-// * CV_project/api/internal/utils/utils.go
 package utils
 
 import (
@@ -15,16 +14,17 @@ import (
 
 // Template struct definition
 type Template struct {
-	Id   int64
+	ID   int64
 	Path string
 }
 
+// CookieHandler is used to encode and decode cookies
 var CookieHandler = securecookie.New(
 	securecookie.GenerateRandomKey(64), // this key is used for signing
 	securecookie.GenerateRandomKey(32), // this key is used for encryption
 )
 
-// * get environment variables
+// GetEnv retrieves an environment variable or returns a fallback value
 func GetEnv(app *app.App, key, fallback string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
@@ -54,7 +54,7 @@ func VerifyLogin(app *app.App, username, password string) bool {
 			app.Logger.Println("No user found with username:", username)
 			return false
 		}
-		app.Logger.Println("Error querying database:", err)
+		app.Logger.Println(" * * * ⛔️ Error querying database:", err)
 		return false
 	}
 
@@ -71,6 +71,7 @@ func VerifyLogin(app *app.App, username, password string) bool {
 	return true
 }
 
+// SetSession sets a session for the given user
 func SetSession(app *app.App, userName string, w http.ResponseWriter) {
 	value := map[string]string{
 		"name": userName,
@@ -78,7 +79,7 @@ func SetSession(app *app.App, userName string, w http.ResponseWriter) {
 
 	encoded, err := CookieHandler.Encode("session", value)
 	if err != nil {
-		app.Logger.Println("Error encoding cookie:", err) // Log encoding errors
+		app.Logger.Println(" * * * ⛔️ Error encoding cookie:", err) // Log encoding errors
 		return
 	}
 

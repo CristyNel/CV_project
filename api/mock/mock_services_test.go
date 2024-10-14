@@ -14,7 +14,7 @@ func TestMockServiceHandler(t *testing.T) {
 	assert.NoError(t, err)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(MockServiceHandler)
+	handler := http.HandlerFunc(ServiceHandler)
 
 	handler.ServeHTTP(rr, req)
 

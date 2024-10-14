@@ -1,11 +1,12 @@
-// * CV_project/api/internal/app/app.go
 package app
 
 import (
 	"database/sql"
+
+	"github.com/gorilla/sessions"
 )
 
-// LoggerInterface defines the methods that a logger should implement
+// Logger is an interface that defines the logging methods
 type Logger interface {
 	Print(v ...interface{})
 	Printf(format string, v ...interface{})
@@ -18,6 +19,5 @@ type Logger interface {
 type App struct {
 	DB     *sql.DB
 	Logger Logger
+	Store  *sessions.CookieStore
 }
-
-

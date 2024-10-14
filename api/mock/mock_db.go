@@ -1,4 +1,3 @@
-// * CV_project/api/mock/mock_db.go
 package mock
 
 import (

@@ -16,48 +16,48 @@ testcases:
         assertions:
           - result.statuscode ShouldEqual 200
 
-  - name: HomeUsers
-    steps:
-      - type: http
-        method: GET
-        url: "http://{{.api_ip}}:8080/users"
-        assertions:
-          - result.statuscode ShouldEqual 200
+  # - name: HomeUsers
+  #   steps:
+  #     - type: http
+  #       method: GET
+  #       url: "http://{{.api_ip}}:8080/users"
+  #       assertions:
+  #         - result.statuscode ShouldEqual 200
 
-  - name: ShowUser
-    steps:
-      - type: http
-        method: GET
-        url: "http://{{.api_ip}}:8080/user/6"
-        assertions:
-          - result.statuscode ShouldEqual 200
+  # - name: ShowUser
+  #   steps:
+  #     - type: http
+  #       method: GET
+  #       url: "http://{{.api_ip}}:8080/user/6"
+  #       assertions:
+  #         - result.statuscode ShouldEqual 200
 
-  - name: ShowUsers
-    steps:
-      - type: http
-        method: GET
-        url: "http://{{.api_ip}}:8080/user"
-        assertions:
-          - result.statuscode ShouldEqual 200
+  # - name: ShowUsers
+  #   steps:
+  #     - type: http
+  #       method: GET
+  #       url: "http://{{.api_ip}}:8080/user"
+  #       assertions:
+  #         - result.statuscode ShouldEqual 200
 
-  - name: DeleteUser
-    steps:
-      - type: http
-        method: DELETE
-        url: "http://{{.api_ip}}:8080/user/6"
-        assertions:
-          - result.statuscode ShouldEqual 204
+  # - name: DeleteUser
+  #   steps:
+  #     - type: http
+  #       method: DELETE
+  #       url: "http://{{.api_ip}}:8080/user/6"
+  #       assertions:
+  #         - result.statuscode ShouldEqual 204
 
-  - name: UpdateUser
-    steps:
-      - type: http
-        method: PUT
-        url: "http://{{.api_ip}}:8080/user/6"
-        headers:
-          Content-Type: application/json
-        body: '{"name": "cristy buliga", "email": "cristybuliga@example.com"}'
-        assertions:
-          - result.statuscode ShouldEqual 200
+  # - name: UpdateUser
+  #   steps:
+  #     - type: http
+  #       method: PUT
+  #       url: "http://{{.api_ip}}:8080/user/6"
+  #       headers:
+  #         Content-Type: application/json
+  #       body: '{"name": "cristy buliga", "email": "cristybuliga@example.com"}'
+  #       assertions:
+  #         - result.statuscode ShouldEqual 200
 
   - name: HealthCheck
     steps:

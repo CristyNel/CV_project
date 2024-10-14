@@ -1,4 +1,3 @@
-// * handlers/templates.go
 package handlers
 
 import (
@@ -17,19 +16,20 @@ import (
 	wkhtml "github.com/SebastiaanKlippert/go-wkhtmltopdf"
 )
 
+// GenerateTemplate generates a PDF from a template and user data
 func GenerateTemplate(app *app.App, w http.ResponseWriter, r *http.Request) {
 	app.Logger.Println("Received request for /pdf")
 
 	query := r.URL.Query()
-	template_id := query["template"]
-	user_id := query["user"]
+	templateID := query["template"]
+	userID := query["user"]
 
-	iduser_int, err := strconv.Atoi(user_id[0])
+	iduserINT, err := strconv.Atoi(userID[0])
 	if err != nil {
 		log.Printf("An error occurred: %v", err)
 	}
 
-	idtemplate_int, err := strconv.Atoi(template_id[0])
+	idtemplateINT, err := strconv.Atoi(templateID[0])
 	if err != nil {
 		log.Printf("An error occurred: %v", err)
 	}
@@ -38,27 +38,27 @@ func GenerateTemplate(app *app.App, w http.ResponseWriter, r *http.Request) {
 	var template utils.Template
 
 	// Get the path of the template
-	row1 := app.DB.QueryRow("SELECT Path FROM template WHERE id = ?", idtemplate_int)
+	row1 := app.DB.QueryRow("SELECT Path FROM template WHERE id = ?", idtemplateINT)
 
 	if err := row1.Scan(&template.Path); err != nil {
 		if err == sql.ErrNoRows {
-			app.Logger.Println("Error scanning row: ", err)
+			app.Logger.Println(" * * * ⛔️ Error scanning row: ", err)
 			http.NotFound(w, r)
 			return
 		}
-		http.Error(w, fmt.Sprintf("Error fetching user data: %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf(" * * * ⛔️ Error fetching user data: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	row := app.DB.QueryRow("SELECT * FROM users WHERE id = ?", iduser_int)
+	row := app.DB.QueryRow("SELECT * FROM users WHERE id = ?", iduserINT)
 
 	if err := row.Scan(&user.ID, &user.Jobtitle, &user.Firstname, &user.Lastname, &user.Email, &user.Phone, &user.Address, &user.City, &user.Country, &user.Postalcode, &user.Dateofbirth, &user.Nationality, &user.Summary, &user.Workexperience, &user.Education, &user.Skills, &user.Languages); err != nil {
 		if err == sql.ErrNoRows {
-			app.Logger.Println("Error scanning row: ", err)
+			app.Logger.Println(" * * * ⛔️ Error scanning row: ", err)
 			http.NotFound(w, r)
 			return
 		}
-		http.Error(w, fmt.Sprintf("Error fetching user data: %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf(" * * * ⛔️ Error fetching user data: %v", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -93,7 +93,7 @@ func GenerateTemplate(app *app.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Read
-	populateHtml, err := os.ReadFile("./bff/templates/view/populate_template.html")
+	populateHTML, err := os.ReadFile("./bff/templates/view/populate_template.html")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -103,7 +103,7 @@ func GenerateTemplate(app *app.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Add HTML page
-	pdfg.AddPage(wkhtml.NewPageReader(bytes.NewReader(populateHtml)))
+	pdfg.AddPage(wkhtml.NewPageReader(bytes.NewReader(populateHTML)))
 	// Create the PDF document in memory
 	err = pdfg.Create()
 	if err != nil {
@@ -115,5 +115,5 @@ func GenerateTemplate(app *app.App, w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	// Respond with template and user IDs
-	fmt.Fprintf(w, "%s, %s", template_id[0], user_id[0])
+	fmt.Fprintf(w, "%s, %s", templateID[0], userID[0])
 }

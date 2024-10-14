@@ -1,10 +1,9 @@
-// * CV_project/api/mock/mock_logger.go
 package mock
 
 import (
 	"bytes"
 	"time"
-	_ "time/tzdata"
+	_ "time/tzdata" // Blank import necessary for side effects
 
 	"github.com/sirupsen/logrus"
 )
@@ -68,22 +67,27 @@ func NewMockLogger() *Logger {
 	return &Logger{Logger: logger}
 }
 
+// Print prints the log message
 func (m *Logger) Print(v ...interface{}) {
 	m.Logger.Print(v...)
 }
 
+// Printf prints the log message with formatting
 func (m *Logger) Printf(format string, v ...interface{}) {
 	m.Logger.Printf(format, v...)
 }
 
+// Println prints the log message with a newline
 func (m *Logger) Println(v ...interface{}) {
 	m.Logger.Println(v...)
 }
 
+// Fatal prints the log message and exits the program
 func (m *Logger) Fatal(v ...interface{}) {
 	m.Logger.Fatal(v...)
 }
 
+// Fatalf prints the log message with formatting and exits the program
 func (m *Logger) Fatalf(format string, v ...interface{}) {
 	m.Logger.Fatalf(format, v...)
 }

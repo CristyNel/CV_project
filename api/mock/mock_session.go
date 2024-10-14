@@ -1,4 +1,3 @@
-// * api/mock/mock_session.go
 package mock
 
 import (

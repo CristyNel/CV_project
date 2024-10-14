@@ -1,7 +1,9 @@
 // bcn/github/CV_project/api/go.mod
 module github.com/CristyNel/CV_project/tree/main/api
 
-go 1.22
+go 1.23
+
+toolchain go1.23.1
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
@@ -22,6 +24,7 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/gorilla/sessions v1.4.0
 	github.com/kr/text v0.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
